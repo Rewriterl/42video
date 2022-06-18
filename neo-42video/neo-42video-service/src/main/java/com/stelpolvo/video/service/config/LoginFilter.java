@@ -3,6 +3,8 @@ package com.stelpolvo.video.service.config;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stelpolvo.video.domain.User;
+import com.stelpolvo.video.domain.exception.ConditionException;
+import com.stelpolvo.video.service.utils.RSAUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -10,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,9 +50,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 username = entry.getValue().trim();
                 break;
             }
+            String rawPassword;
+            try {
+                rawPassword = RSAUtil.decrypt(password);
+            } catch (Exception e) {
+                throw new ConditionException("解密失败");
+            }
             String serialized = JSON.toJSONString(map, true);
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-                    serialized, password);
+                    serialized, rawPassword);
             setDetails(request, authRequest);
             User principal = new User();
             principal.setUsername(username);

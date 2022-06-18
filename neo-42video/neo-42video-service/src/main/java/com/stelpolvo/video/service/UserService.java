@@ -36,6 +36,9 @@ public class UserService implements UserDetailsService {
         } else if (hashMap.get("username") != null) {
             return userDao.getUserByPhoneOrEmailOrUsername(null, null, hashMap.get("username"));
         }
+        if (StringUtils.isNullOrEmpty(username)) {
+            throw new UsernameNotFoundException("用户名不能为空");
+        }
         UserDetails userDetails = userDao.getUserByPhoneOrEmailOrUsername(null, null, username);
         if (userDetails == null) {
             throw new ConditionException("用户不存在");
