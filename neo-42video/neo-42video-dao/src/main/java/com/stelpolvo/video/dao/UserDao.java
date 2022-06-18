@@ -5,7 +5,6 @@ import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Date;
 import java.util.List;
@@ -27,15 +26,11 @@ public interface UserDao {
 
     Integer updateUsers(User user);
 
-    User getUserByPhoneOrEmailOrUsername(@Param("phone") String phone, @Param("email") String email, @Param("username") String username);
+    User getUserByPhoneOrEmailOrUsername(@Param("phone") Object phone, @Param("email") Object email, @Param("username") Object username);
 
     Integer updateUserInfos(UserInfo userInfo);
 
     List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList);
-
-    Integer pageCountUserInfos(Map<String, Object> params);
-
-    List<UserInfo> pageListUserInfos(JSONObject params);
 
     Integer deleteRefreshToken(@Param("refreshToken") String refreshToken,
                                @Param("userId") Long userId);

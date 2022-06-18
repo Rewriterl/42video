@@ -43,6 +43,9 @@ public class RSAUtil {
 		return new RSAKey(privateKey, privateKeyString, publicKey, publicKeyString);
 	}
 
+	public static void main(String[] args) throws Exception {
+		System.out.println(RSAUtil.encrypt("123"));
+	}
 	public static String encrypt(String source) throws Exception {
 		byte[] decoded = Base64.decodeBase64(PUBLIC_KEY);
 		RSAPublicKey rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")

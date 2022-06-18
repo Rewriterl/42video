@@ -26,7 +26,7 @@ public class RespBean {
         return new RespBean("500", msg, null);
     }
 
-    public static RespBean error(String code,String msg) {
+    public static RespBean error(String code, String msg) {
         return new RespBean("500", msg, null);
     }
 
@@ -51,5 +51,9 @@ public class RespBean {
     public RespBean(String code, Object data) {
         this.code = code;
         this.data = data;
+    }
+
+    public static RespBean ok(String msg, Object o) {
+        return new RespBean("200", msg, o);
     }
 }

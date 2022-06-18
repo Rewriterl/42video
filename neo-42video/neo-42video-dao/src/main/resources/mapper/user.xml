@@ -14,25 +14,23 @@
         insert into t_user(phone,
                            email,
                            password,
-                           salt,
+                           username,
                            createTime)
         values (#{phone},
                 #{email},
                 #{password},
-                #{salt},
+                #{username},
                 #{createTime})
     </insert>
 
     <insert id="addUserInfo" parameterType="com.stelpolvo.video.domain.UserInfo">
         insert into t_user_info(userId,
-                                nick,
                                 avatar,
                                 sign,
                                 gender,
                                 birth,
                                 createTime)
         values (#{userId},
-                #{nick},
                 #{avatar},
                 #{sign},
                 #{gender},
@@ -82,9 +80,6 @@
         update
         t_user_info
         set
-        <if test="nick != null and nick != '' ">
-            nick = #{nick},
-        </if>
         <if test="avatar != null">
             avatar = #{avatar},
         </if>
@@ -115,32 +110,6 @@
                 #{userId}
             </foreach>
         </if>
-    </select>
-
-    <select id="pageCountUserInfos" parameterType="java.util.Map" resultType="java.lang.Integer">
-        select
-        count(1)
-        from
-        t_user_info
-        where
-        1=1
-        <if test="nick != null and nick != '' ">
-            and nick like '%${nick}%'
-        </if>
-    </select>
-
-    <select id="pageListUserInfos" parameterType="java.util.Map" resultType="com.stelpolvo.video.domain.UserInfo">
-        select
-        *
-        from
-        t_user_info
-        where
-        1=1
-        <if test="nick != null and nick != '' ">
-            and nick like '%${nick}%'
-        </if>
-        order by id desc
-        limit #{start}, #{limit}
     </select>
 
     <delete id="deleteRefreshToken">
