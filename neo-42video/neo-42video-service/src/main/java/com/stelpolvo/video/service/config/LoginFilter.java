@@ -38,25 +38,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 //                String code = loginData.get("code");
 //                checkCode(response, code, verify_code);
             }
-            String username = loginData.get(getUsernameParameter());
-            String phone = loginData.get("phone");
-            String email = loginData.get("email");
-            String password = loginData.get(getPasswordParameter());
+            String username = "";
+            String password = loginData.get(getPasswordParameter()).trim();
             HashMap<String, String> map = new HashMap<>();
-            if (username != null && !username.isEmpty()) {
-                username = username.trim();
-                map.put("username", username);
-            } else if (phone != null && !phone.isEmpty()) {
-                username = phone.trim();
-                map.put("phone", username);
-            } else if (email != null && !email.isEmpty()) {
-                username = email.trim();
-                map.put("email", username);
-            }
-            if (password != null) {
-                password = password.trim();
-            }else {
-                password = "";
+            for (Map.Entry<String, String> entry : loginData.entrySet()) {
+                if (entry.getKey().equals("password")) continue;
+                map.put(entry.getKey(), entry.getValue());
+                username = entry.getValue().trim();
+                break;
             }
             String serialized = JSON.toJSONString(map, true);
             UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
