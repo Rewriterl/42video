@@ -2,6 +2,6 @@
 spring:
   profiles:
     active: test
-#mybatis:
-#  mapper-locations: classpath:mapper/*.xml
-#  type-aliases-package: com.stelpolvo.video.dao
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.stelpolvo.video.dao

@@ -2,5 +2,5 @@ spring:
   datasource:
     url: jdbc:mysql:///video?characterEncoding=UTF8&autoReconnect=true&serverTimezone=Asia/Shanghai&allowMultiQueries=true
     username: root
-    password: inmydocker
+    password: localdocker
     driver-class-name: com.mysql.cj.jdbc.Driver
