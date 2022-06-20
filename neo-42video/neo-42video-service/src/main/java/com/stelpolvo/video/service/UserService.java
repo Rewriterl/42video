@@ -9,6 +9,7 @@ import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.UserInfo;
 import com.stelpolvo.video.domain.constant.UserConstant;
 import com.stelpolvo.video.domain.dto.LoginDto;
+import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.service.utils.CollectionUtil;
 import com.stelpolvo.video.service.utils.JwtUtil;
@@ -77,6 +78,17 @@ public class UserService implements UserDetailsService {
         user.setCreateTime(date);
         if (userDao.addUser(user) <= 0) throw new ConditionException("注册失败");
         userDao.addUserInfo(new UserInfo(user.getId()));
+    }
+
+    /**
+     * 更新用户基本信息
+     */
+    public void updateUser(UserBasicInfoDto user) {
+        if (userDao.updateUser(user) <= 0) throw new ConditionException("修改失败");
+    }
+
+    public void updateUserInfo(UserInfo userInfo) {
+        if (userDao.updateUserInfo(userInfo) <= 0) throw new ConditionException("修改失败");
     }
 
     public User getUserWithRolesAndInfoByUserId(Long userId) {

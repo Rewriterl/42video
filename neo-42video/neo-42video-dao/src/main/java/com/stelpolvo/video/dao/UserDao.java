@@ -2,6 +2,7 @@ package com.stelpolvo.video.dao;
 
 import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.UserInfo;
+import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,11 +25,11 @@ public interface UserDao {
 
     UserInfo getUserInfoByUserId(Long userId);
 
-    Integer updateUsers(User user);
+    Integer updateUser(UserBasicInfoDto user);
 
     User getUserByPhoneOrEmailOrUsername(@Param("phone") Object phone, @Param("email") Object email, @Param("username") Object username);
 
-    Integer updateUserInfos(UserInfo userInfo);
+    Integer updateUserInfo(UserInfo userInfo);
 
     List<UserInfo> getUserInfoByUserIds(Set<Long> userIdList);
 

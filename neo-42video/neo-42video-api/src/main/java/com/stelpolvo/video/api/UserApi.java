@@ -3,7 +3,9 @@ package com.stelpolvo.video.api;
 import com.stelpolvo.video.domain.Auth;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.User;
+import com.stelpolvo.video.domain.UserInfo;
 import com.stelpolvo.video.domain.dto.LoginDto;
+import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import com.stelpolvo.video.service.UserService;
 import com.stelpolvo.video.service.config.AppProperties;
 import com.stelpolvo.video.service.utils.JwtUtil;
@@ -60,5 +62,17 @@ public class UserApi {
             return RespBean.ok(new Auth(jwtUtil.buildAccessTokenWithRefreshToken(refreshToken), refreshToken));
         }
         return RespBean.error("刷新失败");
+    }
+
+    @PutMapping("/users")
+    public RespBean updateUser(@RequestBody UserBasicInfoDto user) {
+        userService.updateUser(user);
+        return RespBean.ok("更新成功");
+    }
+
+    @PutMapping("/users-infos")
+    public RespBean updateUserInfo(@RequestBody UserInfo userInfo) {
+        userService.updateUserInfo(userInfo);
+        return RespBean.ok("更新成功");
     }
 }

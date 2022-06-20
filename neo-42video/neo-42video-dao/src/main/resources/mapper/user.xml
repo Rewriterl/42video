@@ -78,7 +78,7 @@
         where userId = #{userId}
     </select>
 
-    <update id="updateUsers" parameterType="com.stelpolvo.video.domain.User">
+    <update id="updateUser" parameterType="com.stelpolvo.video.domain.dto.UserBasicInfoDto">
         update
         t_user
         set
@@ -91,7 +91,7 @@
         <if test="password != null and password != '' ">
             password = #{password},
         </if>
-        updateTime = #{updateTime}
+        updateTime = now()
         where
         id = #{id}
     </update>
@@ -105,7 +105,7 @@
            or username = #{username}
     </select>
 
-    <update id="updateUserInfos" parameterType="com.stelpolvo.video.domain.UserInfo">
+    <update id="updateUserInfo" parameterType="com.stelpolvo.video.domain.UserInfo">
         update
         t_user_info
         set
