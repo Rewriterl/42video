@@ -21,4 +21,9 @@ public class UserRole {
     private String roleCode;
 
     private Date createTime;
+
+    public UserRole(Long userId,Long roleId){
+        this.userId = userId;
+        this.roleId = roleId;
+    }
 }

@@ -22,4 +22,6 @@ public class UserConstant {
     public static final String USER_FOLLOWING_GROUP_TYPE_USER = "3";
 
     public static final String USER_FOLLOWING_GROUP_ALL_NAME = "全部关注";
+
+    public static final Long DEFAULT_ROLE_ID = 1L;
 }

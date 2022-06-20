@@ -17,7 +17,7 @@
                                 createTime)
         values (#{userId},
                 #{roleId},
-                #{createTime})
+                now())
     </insert>
 
 </mapper>

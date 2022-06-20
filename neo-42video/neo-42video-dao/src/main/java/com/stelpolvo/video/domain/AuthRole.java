@@ -20,4 +20,8 @@ public class AuthRole {
     private Date createTime;
 
     private Date updateTime;
+
+    public AuthRole(String role_user) {
+        this.name = role_user;
+    }
 }

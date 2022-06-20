@@ -7,6 +7,7 @@ import com.stelpolvo.video.dao.UserRoleDao;
 import com.stelpolvo.video.domain.Auth;
 import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.UserInfo;
+import com.stelpolvo.video.domain.UserRole;
 import com.stelpolvo.video.domain.constant.UserConstant;
 import com.stelpolvo.video.domain.dto.LoginDto;
 import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
@@ -77,6 +78,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(encode);
         user.setCreateTime(date);
         if (userDao.addUser(user) <= 0) throw new ConditionException("注册失败");
+        userRoleDao.addUserRole(new UserRole(user.getId(), UserConstant.DEFAULT_ROLE_ID));
         userDao.addUserInfo(new UserInfo(user.getId()));
     }
 
