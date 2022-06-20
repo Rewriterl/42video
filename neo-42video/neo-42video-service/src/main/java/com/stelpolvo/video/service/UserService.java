@@ -41,23 +41,14 @@ public class UserService implements UserDetailsService {
     UserRoleDao userRoleDao;
 
     @Override
+    @Deprecated
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         HashMap hashMap = JSON.parseObject(username, HashMap.class);
-        if (hashMap.get("phone") != null) {
-            return userDao.getUserByPhoneOrEmailOrUsername(hashMap.get("phone"), null, null);
-        } else if (hashMap.get("email") != null) {
-            return userDao.getUserByPhoneOrEmailOrUsername(null, hashMap.get("email"), null);
-        } else if (hashMap.get("username") != null) {
-            return userDao.getUserByPhoneOrEmailOrUsername(null, null, hashMap.get("username"));
-        }
+        User user = userDao.getUserByPhoneOrEmailOrUsername(hashMap.get("phone"), hashMap.get("email"), hashMap.get("username"));
         if (StringUtils.isNullOrEmpty(username)) {
             throw new UsernameNotFoundException("用户名不能为空");
         }
-        UserDetails userDetails = userDao.getUserByPhoneOrEmailOrUsername(null, null, username);
-        if (userDetails == null) {
-            throw new ConditionException("用户不存在");
-        }
-        return userDetails;
+        return Optional.ofNullable(user).orElseThrow(() -> new ConditionException("用户不存在"));
     }
 
     @Transactional
