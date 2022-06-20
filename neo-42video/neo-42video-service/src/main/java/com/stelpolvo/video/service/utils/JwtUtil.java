@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class JwtUtil {
-
     public static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     public static final Key refreshKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final AppProperties appProperties;
@@ -29,19 +28,11 @@ public class JwtUtil {
         return createJWTToken(userDetails, timeToExpire, key);
     }
 
-    /**
-     * 根据用户信息生成一个 JWT
-     *
-     * @param userDetails  用户信息
-     * @param timeToExpire 毫秒单位的失效时间
-     * @param signKey      签名使用的 key
-     * @return JWT
-     */
     public String createJWTToken(UserDetails userDetails, long timeToExpire, Key signKey) {
         return Jwts
                 .builder()
                 .setId("42video")
-                .setSubject(((User)userDetails).getId().toString())
+                .setSubject(((User) userDetails).getId().toString())
                 .claim("authorities", Optional.ofNullable(userDetails.getAuthorities())
                         .orElse(new ArrayList<>()).stream()
                         .map(GrantedAuthority::getAuthority)
@@ -60,19 +51,30 @@ public class JwtUtil {
     }
 
     public boolean validateAccessToken(String jwtToken) {
-        return validateToken(jwtToken, key);
+        return validateToken(jwtToken, key, true);
     }
 
     public boolean validateRefreshToken(String jwtToken) {
-        return validateToken(jwtToken, refreshKey);
+        return validateToken(jwtToken, refreshKey, true);
     }
 
-    public boolean validateToken(String jwtToken, Key signKey) {
+    public boolean validateAccessTokenWithoutExpire(String jwtToken) {
+        return validateToken(jwtToken, key, false);
+    }
+
+    public boolean validateRefreshTokenWithoutExpire(String jwtToken) {
+        return validateToken(jwtToken, refreshKey, false);
+    }
+
+    public boolean validateToken(String jwtToken, Key signKey, boolean isExpiredInvalid) {
         try {
-            Jwts.parserBuilder().setSigningKey(JwtUtil.key).build().parseClaimsJws(jwtToken);
+            Jwts.parserBuilder().setSigningKey(signKey).build().parse(jwtToken);
             return true;
         } catch (ExpiredJwtException | SignatureException | MalformedJwtException | UnsupportedJwtException |
                  IllegalArgumentException e) {
+            if (e instanceof ExpiredJwtException) {
+                return !isExpiredInvalid;
+            }
             return false;
         }
     }

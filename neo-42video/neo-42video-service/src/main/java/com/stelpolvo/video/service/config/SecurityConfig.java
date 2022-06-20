@@ -1,7 +1,5 @@
 package com.stelpolvo.video.service.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -52,14 +50,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginProcessingUrl("/login")
                 .loginPage("/loginPage")
-                .permitAll()
-                .and()
-                .logout()
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setContentType("application/json;charset=utf-8");
-                    String s = new ObjectMapper().writeValueAsString(RespBean.ok("注销成功"));
-                    response.getWriter().write(s);
-                })
                 .permitAll()
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

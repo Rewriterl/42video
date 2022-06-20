@@ -1,16 +1,16 @@
 package com.stelpolvo.video.api;
 
+import com.stelpolvo.video.domain.Auth;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.dto.LoginDto;
 import com.stelpolvo.video.service.UserService;
+import com.stelpolvo.video.service.config.AppProperties;
+import com.stelpolvo.video.service.utils.JwtUtil;
 import com.stelpolvo.video.service.utils.RSAUtil;
 import com.stelpolvo.video.service.utils.UserContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -18,6 +18,12 @@ import javax.validation.Valid;
 public class UserApi {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AppProperties appProperties;
 
     @GetMapping("/rsa-pub")
     public RespBean getRsaPub() {
@@ -42,5 +48,17 @@ public class UserApi {
     @PostMapping("/token")
     public RespBean login(@Valid @RequestBody LoginDto loginDto) {
         return RespBean.ok("登录成功", userService.login(loginDto));
+    }
+
+    /**
+     * TODO: 使用RequestBody无法完整获取到参数。暂未找到原因，这里采用formData的形式获取参数
+     */
+    @PostMapping("/token/refresh")
+    public RespBean refreshToken(@RequestHeader String authorization, @RequestParam String refreshToken) {
+        String accessToken = authorization.replace(appProperties.getJwt().getPrefix(), "");
+        if (jwtUtil.validateRefreshToken(refreshToken) && jwtUtil.validateAccessTokenWithoutExpire(accessToken)) {
+            return RespBean.ok(new Auth(jwtUtil.buildAccessTokenWithRefreshToken(refreshToken), refreshToken));
+        }
+        return RespBean.error("刷新失败");
     }
 }
