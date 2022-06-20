@@ -18,7 +18,7 @@ public class UserFollowingApi {
     @Autowired
     private UserFollowingService userFollowingService;
 
-    @PostMapping("/user-following")
+    @PostMapping("/following")
     public RespBean addUserFollowing(@RequestBody UserFollowing userFollowing) {
         Long currentUserId = UserContextHolder.getCurrentUserId();
         userFollowing.setUserId(currentUserId);
@@ -26,17 +26,32 @@ public class UserFollowingApi {
         return RespBean.ok("关注成功！");
     }
 
-    @GetMapping("/user-fans")
+    @GetMapping("/fans")
     public RespBean getUserFans() {
         Long currentUserId = UserContextHolder.getCurrentUserId();
         List<UserFollowing> userFans = userFollowingService.getUserFans(currentUserId);
         return RespBean.ok(userFans);
     }
 
-    @GetMapping("/user-followings")
+    @GetMapping("/followings")
     public RespBean getUserFollowings() {
         Long currentUserId = UserContextHolder.getCurrentUserId();
         List<FollowingGroup> userFollowings = userFollowingService.getUserFollowings(currentUserId);
         return RespBean.ok(userFollowings);
+    }
+
+    @PostMapping("/groups")
+    public RespBean addUserFollowingsGroup(@RequestBody FollowingGroup followingGroup) {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+        followingGroup.setUserId(currentUserId);
+        Long groupIds = userFollowingService.addUserFollowingGroups(followingGroup);
+        return RespBean.ok(groupIds);
+    }
+
+    @GetMapping("/groups")
+    public RespBean getUserFollowingGroups() {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+        List<FollowingGroup> userFollowingGroups = userFollowingService.getUserFollowingGroups(currentUserId);
+        return RespBean.ok(userFollowingGroups);
     }
 }
