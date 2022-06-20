@@ -9,16 +9,15 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRole {
+public class AuthMenu {
+
     private Long id;
 
-    private Long userId;
+    private String name;
 
-    private Long roleId;
-
-    private String roleName;
-
-    private String roleCode;
+    private String code;
 
     private Date createTime;
+
+    private Date updateTime;
 }

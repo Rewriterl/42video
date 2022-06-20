@@ -1,7 +1,7 @@
-package com.stelpolvo.video.domain;
+package com.stelpolvo.video.domain.constant;
 
 public class UserConstant {
-    public static final String DEFAULT_USERNAME = "御坂";
+    public static final String DEFAULT_USERNAME = "用户";
 
     public static final String DEFAULT_AVATAR = "https://gss0.baidu.com/9vo3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/8435e5dde71190ef97f506c9c61b9d16fdfa609e.jpg";
 

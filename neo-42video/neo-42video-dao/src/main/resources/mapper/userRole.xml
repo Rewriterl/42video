@@ -4,29 +4,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.stelpolvo.video.dao.UserRoleDao">
 
-    <select id="getUserRoleByUserId" parameterType="java.lang.Long" resultType="com.stelpolvo.video.domain.UserRole">
-        select
-            ur.*,
-            ar.name roleName,
-            ar.code roleCode
-        from
-            t_user_role ur
-            left join t_auth_role ar on ur.roleId = ar.id
-        where
-            ur.userId = #{userId}
+    <select id="getUserRolesByUserId" parameterType="java.lang.Long" resultType="com.stelpolvo.video.domain.AuthRole">
+        select ar.*
+        from t_user_role ur
+                 left join t_auth_role ar on ur.roleId = ar.id
+        where ur.userId = #{userId}
     </select>
 
     <insert id="addUserRole" parameterType="com.stelpolvo.video.domain.UserRole">
-        insert into
-            t_user_role(
-                            userId,
-                            roleId,
-                            createTime
-                        )values(
-                            #{userId},
-                            #{roleId},
-                            #{createTime}
-                        )
+        insert into t_user_role(userId,
+                                roleId,
+                                createTime)
+        values (#{userId},
+                #{roleId},
+                #{createTime})
     </insert>
 
 </mapper>

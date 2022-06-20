@@ -7,18 +7,17 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserRole {
+@AllArgsConstructor
+public class AuthRole {
+
     private Long id;
 
-    private Long userId;
+    private String name;
 
-    private Long roleId;
-
-    private String roleName;
-
-    private String roleCode;
+    private String code;
 
     private Date createTime;
+
+    private Date updateTime;
 }

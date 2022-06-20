@@ -1,10 +1,14 @@
 package com.stelpolvo.video.domain;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public class User implements UserDetails {
 
@@ -16,6 +20,7 @@ public class User implements UserDetails {
 
     private String username;
 
+    @NotNull
     private String password;
 
     private Boolean enabled;
@@ -26,9 +31,15 @@ public class User implements UserDetails {
 
     private UserInfo userInfo;
 
+    private List<AuthRole> roles;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>(roles.size());
+        for (AuthRole role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        return authorities;
     }
 
     @Override
@@ -119,5 +130,25 @@ public class User implements UserDetails {
 
     public void setUserInfo(UserInfo userInfo) {
         this.userInfo = userInfo;
+    }
+
+    public void setRoles(List<AuthRole> roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", enabled=" + enabled +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", userInfo=" + userInfo +
+                ", roles=" + roles +
+                '}';
     }
 }

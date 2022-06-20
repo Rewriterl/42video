@@ -9,16 +9,17 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRole {
+public class AuthElementOperation {
+
     private Long id;
 
-    private Long userId;
+    private String elementName;
 
-    private Long roleId;
+    private String elementCode;
 
-    private String roleName;
-
-    private String roleCode;
+    private String operationType;
 
     private Date createTime;
+
+    private Date updateTime;
 }

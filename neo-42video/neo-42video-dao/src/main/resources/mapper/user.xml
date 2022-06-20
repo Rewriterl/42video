@@ -3,6 +3,34 @@
         PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.stelpolvo.video.dao.UserDao">
+    <resultMap id="userWithRolesAndInfo" type="com.stelpolvo.video.domain.User">
+        <id property="id" column="id"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createTime" column="createTime"/>
+        <result property="updateTime" column="updateTime"/>
+        <association property="userInfo" javaType="com.stelpolvo.video.domain.UserInfo">
+            <id property="avatar" column="avatar"/>
+            <id property="gender" column="gender"/>
+            <id property="sign" column="sign"/>
+            <id property="birth" column="birth"/>
+        </association>
+        <collection property="roles" ofType="com.stelpolvo.video.domain.AuthRole">
+            <id property="name" column="role_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getUserWithRolesAndInfoById" parameterType="java.lang.Long" resultMap="userWithRolesAndInfo">
+        select tu.*, tar.name role_name, tui.avatar, tui.gender, tui.sign, tui.birth
+        from t_auth_role tar
+                 left join t_user_role tur on tar.id = tur.roleid
+                 left join t_user tu on tu.id = tur.userid
+                 left join t_user_info tui on tui.userid = tu.id
+        where tu.id = #{id}
+    </select>
 
     <select id="getUserByPhone" parameterType="java.lang.String" resultType="com.stelpolvo.video.domain.User">
         select *
@@ -68,7 +96,8 @@
         id = #{id}
     </update>
 
-    <select id="getUserByPhoneOrEmailOrUsername" parameterType="java.lang.String" resultType="com.stelpolvo.video.domain.User">
+    <select id="getUserByPhoneOrEmailOrUsername" parameterType="java.lang.String"
+            resultType="com.stelpolvo.video.domain.User">
         select *
         from t_user
         where phone = #{phone}

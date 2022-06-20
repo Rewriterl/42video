@@ -1,5 +1,7 @@
 package com.stelpolvo.video.domain;
 
+import com.stelpolvo.video.domain.constant.UserConstant;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,6 +9,7 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserInfo {
 
     public UserInfo(Long userId) {
