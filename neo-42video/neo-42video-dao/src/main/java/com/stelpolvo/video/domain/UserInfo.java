@@ -24,6 +24,8 @@ public class UserInfo {
 
     private Long userId;
 
+    private String username;
+
     private String avatar;
 
     private String sign;

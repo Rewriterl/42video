@@ -98,9 +98,10 @@
     </select>
 
     <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.stelpolvo.video.domain.UserInfo">
-        select *
-        from t_user_info
-        where userId = #{userId}
+        select tui.*, tu.username
+        from t_user_info tui
+                 left join t_user tu on tui.userId = tu.id
+        where tu.id = #{userId}
     </select>
 
     <update id="updateUser" parameterType="com.stelpolvo.video.domain.dto.UserBasicInfoDto">
@@ -152,14 +153,12 @@
     </update>
 
     <select id="getUserInfoByUserIds" resultType="com.stelpolvo.video.domain.UserInfo">
-        select
-        *
-        from
-        t_user_info
+        select tui.*,tu.username
+        from t_user_info tui left join t_user tu on tui.userId = tu.id
         where
         1=1
         <if test="userIdList != null and userIdList.size > 0">
-            and userId in
+            and tu.id in
             <foreach collection="userIdList" item="userId" index="index" open="(" close=")" separator=",">
                 #{userId}
             </foreach>
@@ -196,12 +195,10 @@
     </select>
 
     <select id="batchGetUserInfoByUserIds" resultType="com.stelpolvo.video.domain.UserInfo">
-        select
-        *
-        from
-        t_user_info
+        select tui.*,tu.username
+        from t_user_info tui left join t_user tu on tui.userId = tu.id
         where
-        userId in
+        tu.id in
         <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
             #{userId}
         </foreach>
