@@ -86,6 +86,18 @@ public class UserService implements UserDetailsService {
      * 更新用户基本信息
      */
     public void updateUser(UserBasicInfoDto user) {
+        Optional.ofNullable(userDao.getUserById(user.getId()))
+                .map(u -> {
+                    try {
+                        String rawPassword = RSAUtil.decrypt(user.getPassword());
+                        String encode = new BCryptPasswordEncoder().encode(rawPassword);
+                        u.setPassword(encode);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    return u;
+                })
+                .orElseThrow(() -> new ConditionException("用户不存在"));
         if (userDao.updateUser(user) <= 0) throw new ConditionException("修改失败");
     }
 
@@ -132,5 +144,15 @@ public class UserService implements UserDetailsService {
                     return new Auth(accessToken, jwtUtil.createRefreshToken(u));
                 })
                 .orElseThrow(() -> new ConditionException("用户名或密码错误"));
+    }
+
+    public User getUserById(Long userid) {
+        return Optional.ofNullable(userDao.getUserWithInfoById(userid))
+                .orElseThrow(() -> new ConditionException("用户不存在"));
+    }
+
+    public List<UserInfo> getUserInfoByUserIds(Set<Long> followingIdSet) {
+        return Optional.ofNullable(userDao.getUserInfoByUserIds(followingIdSet))
+                .orElseThrow(() -> new ConditionException("查询失败"));
     }
 }

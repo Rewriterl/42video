@@ -23,6 +23,23 @@
         </collection>
     </resultMap>
 
+    <resultMap id="userWithInfo" type="com.stelpolvo.video.domain.User">
+        <id property="id" column="id"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createTime" column="createTime"/>
+        <result property="updateTime" column="updateTime"/>
+        <association property="userInfo" javaType="com.stelpolvo.video.domain.UserInfo">
+            <id property="avatar" column="avatar"/>
+            <id property="gender" column="gender"/>
+            <id property="sign" column="sign"/>
+            <id property="birth" column="birth"/>
+        </association>
+    </resultMap>
+
     <select id="getUserWithRolesAndInfoById" parameterType="java.lang.Long" resultMap="userWithRolesAndInfo">
         select tu.*, tar.name role_name, tui.avatar, tui.gender, tui.sign, tui.birth
         from t_auth_role tar
@@ -48,7 +65,7 @@
                 #{email},
                 #{password},
                 #{username},
-                #{createTime})
+                now())
     </insert>
 
     <insert id="addUserInfo" parameterType="com.stelpolvo.video.domain.UserInfo">
@@ -63,13 +80,21 @@
                 #{sign},
                 #{gender},
                 #{birth},
-                #{createTime})
+                now())
     </insert>
 
     <select id="getUserById" parameterType="java.lang.Long" resultType="com.stelpolvo.video.domain.User">
         select *
         from t_user
         where id = #{id}
+    </select>
+
+    <select id="getUserWithInfoById" parameterType="java.lang.Long" resultMap="userWithInfo">
+        select tu.*, tui.avatar, tui.gender, tui.sign, tui.birth
+        from t_user tu
+                 left join t_user_info tui
+                           on tui.userid = tu.id
+        where tu.id = #{id}
     </select>
 
     <select id="getUserInfoByUserId" parameterType="java.lang.Long" resultType="com.stelpolvo.video.domain.UserInfo">
@@ -121,7 +146,7 @@
         <if test="gender != null and gender != '' ">
             gender = #{gender},
         </if>
-        updateTime = #{updateTime}
+        updateTime = now()
         where
         userId = #{userId}
     </update>
@@ -161,7 +186,7 @@
                                     createTime)
         values (#{refreshToken},
                 #{userId},
-                #{createTime})
+                now())
     </insert>
 
     <select id="getRefreshTokenByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
