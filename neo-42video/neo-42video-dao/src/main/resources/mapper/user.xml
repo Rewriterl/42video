@@ -204,4 +204,28 @@
         </foreach>
     </select>
 
+    <select id="pageCountUserInfos" parameterType="String" resultType="java.lang.Integer">
+        select
+        count(1)
+        from
+        t_user
+        where
+        1=1
+        <if test="username != null and username != '' ">
+            and username like '%${username}%'
+        </if>
+    </select>
+
+    <select id="pageGetUserInfos" parameterType="com.stelpolvo.video.domain.dto.UserCriteria" resultType="com.stelpolvo.video.domain.UserInfo">
+        select tui.*,tu.username
+        from t_user_info tui left join t_user tu on tui.userId = tu.id
+        where
+        1=1
+        <if test="username != null and username != '' ">
+            and username like '%${username}%'
+        </if>
+        order by tu.id desc
+        limit #{page}, #{pageSize}
+    </select>
+
 </mapper>

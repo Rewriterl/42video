@@ -3,6 +3,7 @@ package com.stelpolvo.video.dao;
 import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.UserInfo;
 import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
+import com.stelpolvo.video.domain.dto.UserCriteria;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -47,4 +48,8 @@ public interface UserDao {
     String getRefreshTokenByUserId(Long userId);
 
     Integer deleteRefreshTokenByUserId(Long userId);
+
+    Integer pageCountUserInfos(String username);
+
+    List<UserInfo> pageGetUserInfos(UserCriteria userCriteria);
 }

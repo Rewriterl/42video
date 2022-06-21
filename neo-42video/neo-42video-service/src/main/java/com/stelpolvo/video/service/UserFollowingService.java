@@ -118,6 +118,7 @@ public class UserFollowingService {
         return followingGroupService.getUserFollowingGroups(userId);
     }
 
+    // 有的时候需要查看是否已关注，有的时候不需要。这里先留着。
     public List<UserInfo> checkFollowingStatus(List<UserInfo> userInfoList, Long userId) {
         List<UserFollowing> userFollowingList = userFollowingDao.getUserFollowings(userId);
         for (UserInfo userInfo : userInfoList) {

@@ -11,6 +11,7 @@ import com.stelpolvo.video.domain.UserRole;
 import com.stelpolvo.video.domain.constant.UserConstant;
 import com.stelpolvo.video.domain.dto.LoginDto;
 import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
+import com.stelpolvo.video.domain.dto.UserCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.service.utils.CollectionUtil;
 import com.stelpolvo.video.service.utils.JwtUtil;
@@ -154,5 +155,14 @@ public class UserService implements UserDetailsService {
     public List<UserInfo> getUserInfoByUserIds(Set<Long> followingIdSet) {
         return Optional.ofNullable(userDao.getUserInfoByUserIds(followingIdSet))
                 .orElseThrow(() -> new ConditionException("查询失败"));
+    }
+
+    public UserCriteria pageGetUserInfos(UserCriteria userCriteria) {
+        Integer total = userDao.pageCountUserInfos(userCriteria.getUsername());
+        if (total > 0) {
+            userCriteria.setList(userDao.pageGetUserInfos(userCriteria));
+        }
+        userCriteria.setTotal(total);
+        return userCriteria;
     }
 }
