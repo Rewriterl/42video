@@ -4,3 +4,8 @@ spring:
     username: root
     password: localdocker
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+rocketmq:
+  producer:
+    moments:
+      name: localhost:9876

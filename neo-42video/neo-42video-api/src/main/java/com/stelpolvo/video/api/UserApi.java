@@ -40,7 +40,7 @@ public class UserApi {
     }
 
     @PostMapping("/user")
-    public RespBean addUser(@Valid @RequestBody User user) {
+    public RespBean addUser(@RequestBody User user) {
         userService.addUser(user);
         return RespBean.ok("添加成功");
     }
