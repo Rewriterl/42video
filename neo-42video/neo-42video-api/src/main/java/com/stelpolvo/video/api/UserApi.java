@@ -1,6 +1,9 @@
 package com.stelpolvo.video.api;
 
-import com.stelpolvo.video.domain.*;
+import com.stelpolvo.video.domain.Auth;
+import com.stelpolvo.video.domain.RespBean;
+import com.stelpolvo.video.domain.User;
+import com.stelpolvo.video.domain.UserInfo;
 import com.stelpolvo.video.domain.dto.LoginDto;
 import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import com.stelpolvo.video.domain.dto.UserCriteria;
@@ -10,24 +13,28 @@ import com.stelpolvo.video.service.config.AppProperties;
 import com.stelpolvo.video.service.utils.JwtUtil;
 import com.stelpolvo.video.service.utils.RSAUtil;
 import com.stelpolvo.video.service.utils.UserContextHolder;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
+@RequiredArgsConstructor
 public class UserApi {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private AppProperties appProperties;
+    private final AppProperties appProperties;
 
-    @Autowired
-    private UserFollowingService userFollowingService;
+    private final UserFollowingService userFollowingService;
+
+    private final UserContextHolder userContextHolder;
+
+    @Resource
+    private RedisTemplate<String, User> redisTemplate;
 
     @GetMapping("/rsa-pub")
     public RespBean getRsaPub() {
@@ -35,8 +42,12 @@ public class UserApi {
     }
 
     @GetMapping("/user")
-    public RespBean getUser() {
-        return RespBean.ok(userService.getUserWithRolesAndInfoByUserId(UserContextHolder.getCurrentUserId()));
+    public RespBean getUser(@RequestHeader("Authorization") String header) {
+        String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
+//        return RespBean.ok(userService.getUserWithRolesAndInfoByUserId(UserContextHolder.getCurrentUserId()));
+        User data = redisTemplate.opsForValue().get(jwtToken);
+        System.out.println(data);
+        return RespBean.ok(data);
     }
 
     @PostMapping("/user")
@@ -61,7 +72,10 @@ public class UserApi {
     public RespBean refreshToken(@RequestHeader String authorization, @RequestParam String refreshToken) {
         String accessToken = authorization.replace(appProperties.getJwt().getPrefix(), "");
         if (jwtUtil.validateRefreshToken(refreshToken) && jwtUtil.validateAccessTokenWithoutExpire(accessToken)) {
-            return RespBean.ok(new Auth(jwtUtil.buildAccessTokenWithRefreshToken(refreshToken), refreshToken));
+            String newAccessToken = jwtUtil.buildAccessTokenWithRefreshToken(refreshToken);
+            User user = userContextHolder.getCurrentUser(accessToken);
+            redisTemplate.opsForValue().set(newAccessToken, user);
+            return RespBean.ok(new Auth(newAccessToken, refreshToken));
         }
         return RespBean.error("刷新失败");
     }
@@ -79,9 +93,9 @@ public class UserApi {
     }
 
     @GetMapping("/users")
-    public RespBean getUsers(@RequestParam Integer page, @RequestParam Integer pageSize, String username) {
+    public RespBean getUsers(@RequestHeader("Authorization") String header, @RequestParam Integer page, @RequestParam Integer pageSize, String username) {
         UserCriteria result = userService.pageGetUserInfos(new UserCriteria(page, pageSize, username));
-        result.setList(userFollowingService.checkFollowingStatus(result.getList(), UserContextHolder.getCurrentUserId()));
+        result.setList(userFollowingService.checkFollowingStatus(result.getList(), userContextHolder.getCurrentUser(header).getId()));
         return RespBean.ok(result);
     }
 }

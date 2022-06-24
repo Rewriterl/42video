@@ -1,12 +1,22 @@
 package com.stelpolvo.video.service.utils;
 
+import com.stelpolvo.video.domain.User;
 import com.stelpolvo.video.domain.exception.ConditionException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.stelpolvo.video.service.config.AppProperties;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
+@Component
+@RequiredArgsConstructor
 public class UserContextHolder {
-    public static Long getCurrentUserId() {
+    private final RedisTemplate redisTemplate;
+    private final AppProperties appProperties;
+
+    public User getCurrentUser(String header) {
         try {
-            return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+            String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
+            return (User) redisTemplate.opsForValue().get(jwtToken);
         } catch (NullPointerException e) {
             throw new ConditionException("请先登录");
         }

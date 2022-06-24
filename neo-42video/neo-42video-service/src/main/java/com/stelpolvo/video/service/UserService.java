@@ -15,7 +15,8 @@ import com.stelpolvo.video.domain.dto.UserCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.service.utils.JwtUtil;
 import com.stelpolvo.video.service.utils.RSAUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,16 +27,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    UserDao userDao;
+    private final UserDao userDao;
 
-    @Autowired
-    JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    UserRoleDao userRoleDao;
+    private final UserRoleDao userRoleDao;
+
+    // If you add your own @Bean of any of the auto-configured types, it replaces the default (except in the case of RedisTemplate, when the exclusion is based on the bean name, redisTemplate, not its type).
+    // 因此这里使用按名称注入的方式
+    private final RedisTemplate redisTemplate;
 
     @Override
     @Deprecated
@@ -126,6 +129,7 @@ public class UserService implements UserDetailsService {
                 .map(u -> {
                     String accessToken = jwtUtil.createAccessToken(u);
                     jwtUtil.setAuthentication(accessToken);
+                    redisTemplate.opsForValue().set(accessToken, u);
                     return new Auth(accessToken, jwtUtil.createRefreshToken(u));
                 })
                 .orElseThrow(() -> new ConditionException("用户名或密码错误"));

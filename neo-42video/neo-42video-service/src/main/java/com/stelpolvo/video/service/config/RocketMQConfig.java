@@ -39,12 +39,6 @@ public class RocketMQConfig {
         return producer;
     }
 
-    // 经过调试发现本地能够成功消费，问题是因为up用户的用户上下文被fans用户的上下文覆盖。
-    // 当第一次流程结束后当前上下文存在的用户是粉丝，粉丝没有被其他人关注，
-    // 若是继续使用之前的up账户的token则会正常通过身份验证，执行添加后从上下文中获取到了fans的id，
-    // 之后根据fan查询接着查询粉丝的粉丝，返回结果长度为0，故返回结果为空
-
-    // 每次请求都从jwt中获取用户信息
     @Bean("momentsConsumer")
     public DefaultMQPushConsumer momentsConsumer() throws Exception {
         DefaultMQPushConsumer pushConsumer = new DefaultMQPushConsumer(MomentConstant.GROUP_MOMENTS);

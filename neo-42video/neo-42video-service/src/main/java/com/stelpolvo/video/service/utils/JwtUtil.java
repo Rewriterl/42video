@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +29,9 @@ public class JwtUtil {
     public static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     public static final Key refreshKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final AppProperties appProperties;
+
+    @Resource
+    private RedisTemplate<Long,User> redisTemplate;
 
     public void setAuthentication(String accessToken){
         Optional.of(Jwts.parserBuilder().setSigningKey(JwtUtil.key).build().parseClaimsJws(accessToken).getBody())
