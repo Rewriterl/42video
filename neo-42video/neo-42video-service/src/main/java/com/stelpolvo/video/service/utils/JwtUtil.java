@@ -7,13 +7,17 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,6 +27,20 @@ public class JwtUtil {
     public static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     public static final Key refreshKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final AppProperties appProperties;
+
+    public void setAuthentication(String accessToken){
+        Optional.of(Jwts.parserBuilder().setSigningKey(JwtUtil.key).build().parseClaimsJws(accessToken).getBody())
+                .ifPresent((claims) -> {
+                    List<SimpleGrantedAuthority> authorityCollection = CollectionUtil.convertObjectToList(
+                                    claims.get("authorities")).stream()
+                            .map(String::valueOf)
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            claims.getSubject(), null, authorityCollection);
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                });
+    }
 
     public String createJWTToken(UserDetails userDetails, long timeToExpire) {
         return createJWTToken(userDetails, timeToExpire, key);

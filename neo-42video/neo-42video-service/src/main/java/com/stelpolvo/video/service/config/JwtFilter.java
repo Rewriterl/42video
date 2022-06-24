@@ -35,6 +35,9 @@ public class JwtFilter extends OncePerRequestFilter {
         String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
         result = header.startsWith(appProperties.getJwt().getPrefix())
                 && jwtUtil.validateAccessToken(jwtToken);
+        if (result) {
+            jwtUtil.setAuthentication(jwtToken);
+        }
         return result;
     }
 }

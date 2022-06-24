@@ -13,14 +13,9 @@ import com.stelpolvo.video.domain.dto.LoginDto;
 import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import com.stelpolvo.video.domain.dto.UserCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
-import com.stelpolvo.video.service.utils.CollectionUtil;
 import com.stelpolvo.video.service.utils.JwtUtil;
 import com.stelpolvo.video.service.utils.RSAUtil;
-import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -131,17 +125,7 @@ public class UserService implements UserDetailsService {
                 })
                 .map(u -> {
                     String accessToken = jwtUtil.createAccessToken(u);
-                    Optional.of(Jwts.parserBuilder().setSigningKey(JwtUtil.key).build().parseClaimsJws(accessToken).getBody())
-                            .ifPresent((claims) -> {
-                                List<SimpleGrantedAuthority> authorityCollection = CollectionUtil.convertObjectToList(
-                                                claims.get("authorities")).stream()
-                                        .map(String::valueOf)
-                                        .map(SimpleGrantedAuthority::new)
-                                        .collect(Collectors.toList());
-                                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                                        claims.getSubject(), null, authorityCollection);
-                                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                            });
+                    jwtUtil.setAuthentication(accessToken);
                     return new Auth(accessToken, jwtUtil.createRefreshToken(u));
                 })
                 .orElseThrow(() -> new ConditionException("用户名或密码错误"));
