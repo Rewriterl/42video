@@ -9,15 +9,10 @@ import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import com.stelpolvo.video.domain.dto.UserCriteria;
 import com.stelpolvo.video.service.UserFollowingService;
 import com.stelpolvo.video.service.UserService;
-import com.stelpolvo.video.service.config.AppProperties;
-import com.stelpolvo.video.service.utils.JwtUtil;
 import com.stelpolvo.video.service.utils.RSAUtil;
-import com.stelpolvo.video.service.utils.UserContextHolder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 
 @RestController
@@ -25,16 +20,7 @@ import javax.validation.Valid;
 public class UserApi {
     private final UserService userService;
 
-    private final JwtUtil jwtUtil;
-
-    private final AppProperties appProperties;
-
     private final UserFollowingService userFollowingService;
-
-    private final UserContextHolder userContextHolder;
-
-    @Resource
-    private RedisTemplate<String, User> redisTemplate;
 
     @GetMapping("/rsa-pub")
     public RespBean getRsaPub() {
@@ -43,11 +29,12 @@ public class UserApi {
 
     @GetMapping("/user")
     public RespBean getUser(@RequestHeader("Authorization") String header) {
-        String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
-//        return RespBean.ok(userService.getUserWithRolesAndInfoByUserId(UserContextHolder.getCurrentUserId()));
-        User data = redisTemplate.opsForValue().get(jwtToken);
-        System.out.println(data);
-        return RespBean.ok(data);
+        User user = userService.getUser(header);
+        if (user == null) {
+            // TODO: 需要的自定义状态码比较多的时候再抽成枚举,001指token需要续期
+            return RespBean.error("001", "请刷新token");
+        }
+        return RespBean.ok(user);
     }
 
     @PostMapping("/user")
@@ -70,14 +57,8 @@ public class UserApi {
      */
     @PostMapping("/token/refresh")
     public RespBean refreshToken(@RequestHeader String authorization, @RequestParam String refreshToken) {
-        String accessToken = authorization.replace(appProperties.getJwt().getPrefix(), "");
-        if (jwtUtil.validateRefreshToken(refreshToken) && jwtUtil.validateAccessTokenWithoutExpire(accessToken)) {
-            String newAccessToken = jwtUtil.buildAccessTokenWithRefreshToken(refreshToken);
-            User user = userContextHolder.getCurrentUser(accessToken);
-            redisTemplate.opsForValue().set(newAccessToken, user);
-            return RespBean.ok(new Auth(newAccessToken, refreshToken));
-        }
-        return RespBean.error("刷新失败");
+        Auth auth = userService.refreshToken(authorization, refreshToken);
+        return RespBean.ok(auth);
     }
 
     @PutMapping("/user")
@@ -95,7 +76,7 @@ public class UserApi {
     @GetMapping("/users")
     public RespBean getUsers(@RequestHeader("Authorization") String header, @RequestParam Integer page, @RequestParam Integer pageSize, String username) {
         UserCriteria result = userService.pageGetUserInfos(new UserCriteria(page, pageSize, username));
-        result.setList(userFollowingService.checkFollowingStatus(result.getList(), userContextHolder.getCurrentUser(header).getId()));
+        result.setList(userFollowingService.checkFollowingStatus(result.getList(),header));
         return RespBean.ok(result);
     }
 }

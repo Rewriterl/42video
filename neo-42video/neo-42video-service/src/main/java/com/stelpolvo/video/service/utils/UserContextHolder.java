@@ -5,6 +5,7 @@ import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.service.config.AppProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,4 +22,9 @@ public class UserContextHolder {
             throw new ConditionException("请先登录");
         }
     }
+
+    public Long getCurrentUserId(){
+        return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+    }
+
 }

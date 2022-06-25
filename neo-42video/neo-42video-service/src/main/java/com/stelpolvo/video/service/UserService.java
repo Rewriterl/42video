@@ -13,8 +13,10 @@ import com.stelpolvo.video.domain.dto.LoginDto;
 import com.stelpolvo.video.domain.dto.UserBasicInfoDto;
 import com.stelpolvo.video.domain.dto.UserCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
+import com.stelpolvo.video.service.config.AppProperties;
 import com.stelpolvo.video.service.utils.JwtUtil;
 import com.stelpolvo.video.service.utils.RSAUtil;
+import com.stelpolvo.video.service.utils.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +26,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +40,14 @@ public class UserService implements UserDetailsService {
 
     private final UserRoleDao userRoleDao;
 
+    private final AppProperties appProperties;
+
+    private final UserContextHolder userContextHolder;
+
     // If you add your own @Bean of any of the auto-configured types, it replaces the default (except in the case of RedisTemplate, when the exclusion is based on the bean name, redisTemplate, not its type).
     // 因此这里使用按名称注入的方式
-    private final RedisTemplate redisTemplate;
+    @Resource
+    private RedisTemplate<String, User> redisTemplate;
 
     @Override
     @Deprecated
@@ -129,7 +138,7 @@ public class UserService implements UserDetailsService {
                 .map(u -> {
                     String accessToken = jwtUtil.createAccessToken(u);
                     jwtUtil.setAuthentication(accessToken);
-                    redisTemplate.opsForValue().set(accessToken, u);
+                    redisTemplate.opsForValue().set(accessToken, u, appProperties.getJwt().getAccessTokenExpireTime(), TimeUnit.MILLISECONDS);
                     return new Auth(accessToken, jwtUtil.createRefreshToken(u));
                 })
                 .orElseThrow(() -> new ConditionException("用户名或密码错误"));
@@ -152,5 +161,22 @@ public class UserService implements UserDetailsService {
         }
         userCriteria.setTotal(total);
         return userCriteria;
+    }
+
+    public User getUser(String header) {
+        return userDao.getUserWithRolesAndInfoById(userContextHolder.getCurrentUserId());
+//        String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
+//        return redisTemplate.opsForValue().get(jwtToken);
+    }
+
+    public Auth refreshToken(String authorization, String refreshToken) {
+        String accessToken = authorization.replace(appProperties.getJwt().getPrefix(), "");
+        if (jwtUtil.validateRefreshToken(refreshToken) && jwtUtil.validateAccessTokenWithoutExpire(accessToken)) {
+            String newAccessToken = jwtUtil.buildAccessTokenWithRefreshToken(refreshToken);
+            User user = userContextHolder.getCurrentUser(accessToken);
+            redisTemplate.opsForValue().set(newAccessToken, user, appProperties.getJwt().getAccessTokenExpireTime(), TimeUnit.MILLISECONDS);
+            return new Auth(newAccessToken, refreshToken);
+        }
+        throw new ConditionException("续期失败");
     }
 }

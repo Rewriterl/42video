@@ -29,11 +29,10 @@ public class JwtUtil {
     public static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     public static final Key refreshKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final AppProperties appProperties;
-
     @Resource
-    private RedisTemplate<Long,User> redisTemplate;
+    private RedisTemplate<String, User> redisTemplate;
 
-    public void setAuthentication(String accessToken){
+    public void setAuthentication(String accessToken) {
         Optional.of(Jwts.parserBuilder().setSigningKey(JwtUtil.key).build().parseClaimsJws(accessToken).getBody())
                 .ifPresent((claims) -> {
                     List<SimpleGrantedAuthority> authorityCollection = CollectionUtil.convertObjectToList(
@@ -74,7 +73,9 @@ public class JwtUtil {
     }
 
     public boolean validateAccessToken(String jwtToken) {
-        return validateToken(jwtToken, key, true);
+        User user = redisTemplate.opsForValue().get(jwtToken);
+        return user != null;
+//        return validateToken(jwtToken, key, true);
     }
 
     public boolean validateRefreshToken(String jwtToken) {

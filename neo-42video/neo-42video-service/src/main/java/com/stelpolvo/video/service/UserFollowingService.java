@@ -7,7 +7,8 @@ import com.stelpolvo.video.domain.UserFollowing;
 import com.stelpolvo.video.domain.UserInfo;
 import com.stelpolvo.video.domain.constant.UserConstant;
 import com.stelpolvo.video.domain.exception.ConditionException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.stelpolvo.video.service.utils.UserContextHolder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +16,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserFollowingService {
 
-    @Autowired
-    private UserFollowingDao userFollowingDao;
+    private final UserFollowingDao userFollowingDao;
 
-    @Autowired
-    private FollowingGroupService followingGroupService;
+    private final FollowingGroupService followingGroupService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    private final UserContextHolder userContextHolder;
 
     @Transactional
     public void addUserFollowings(UserFollowing userFollowing) {
@@ -119,8 +120,9 @@ public class UserFollowingService {
     }
 
     // 有的时候需要查看是否已关注，有的时候不需要。这里先留着。
-    public List<UserInfo> checkFollowingStatus(List<UserInfo> userInfoList, Long userId) {
-        List<UserFollowing> userFollowingList = userFollowingDao.getUserFollowings(userId);
+    public List<UserInfo> checkFollowingStatus(List<UserInfo> userInfoList, String header) {
+        Long id = userContextHolder.getCurrentUser(header).getId();
+        List<UserFollowing> userFollowingList = userFollowingDao.getUserFollowings(id);
         for (UserInfo userInfo : userInfoList) {
             userInfo.setFollowed(false);
             for (UserFollowing userFollowing : userFollowingList) {

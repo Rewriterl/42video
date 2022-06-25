@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
         result = header.startsWith(appProperties.getJwt().getPrefix())
                 && jwtUtil.validateAccessToken(jwtToken);
         if (result) {
-//            jwtUtil.setAuthentication(jwtToken);
+            jwtUtil.setAuthentication(jwtToken);
         }
         return result;
     }
