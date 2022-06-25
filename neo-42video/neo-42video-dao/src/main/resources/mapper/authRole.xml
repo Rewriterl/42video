@@ -9,4 +9,11 @@
         from t_auth_role
         where code = #{code}
     </select>
+
+    <select id="getAuthRolesByUserId" parameterType="java.lang.Long" resultType="com.stelpolvo.video.domain.AuthRole">
+        select ar.*
+        from t_user_role ur
+                 left join t_auth_role ar on ur.roleId = ar.id
+        where ur.userId = #{userId}
+    </select>
 </mapper>

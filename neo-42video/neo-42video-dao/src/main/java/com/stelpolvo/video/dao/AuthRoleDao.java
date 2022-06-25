@@ -9,4 +9,6 @@ import java.util.List;
 public interface AuthRoleDao {
     AuthRole getRoleByCode(String code);
 
+    List<AuthRole> getAuthRolesByUserId(Long userId);
+
 }

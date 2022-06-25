@@ -29,12 +29,7 @@ public class UserApi {
 
     @GetMapping("/user")
     public RespBean getUser(@RequestHeader("Authorization") String header) {
-        User user = userService.getUser(header);
-        if (user == null) {
-            // TODO: 需要的自定义状态码比较多的时候再抽成枚举,001指token需要续期
-            return RespBean.error("001", "请刷新token");
-        }
-        return RespBean.ok(user);
+        return RespBean.ok(userService.getUser(header));
     }
 
     @PostMapping("/user")

@@ -10,5 +10,5 @@ import java.util.Set;
 @Mapper
 public interface AuthRoleElementOperationDao {
 
-    List<AuthRoleElementOperation> getRoleElementOperationsByRoleIds(@Param("roleIdSet") Set<Long> roleIdSet);
+    List<AuthRoleElementOperation> getRoleElementOperationsByRoleIds(@Param("roleIds") Set<Long> roleIdSet);
 }

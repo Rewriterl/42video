@@ -2,6 +2,7 @@ package com.stelpolvo.video.service;
 
 import com.alibaba.fastjson.JSON;
 import com.mysql.cj.util.StringUtils;
+import com.stelpolvo.video.dao.AuthRoleDao;
 import com.stelpolvo.video.dao.UserDao;
 import com.stelpolvo.video.dao.UserRoleDao;
 import com.stelpolvo.video.domain.Auth;
@@ -37,6 +38,8 @@ public class UserService implements UserDetailsService {
     private final UserDao userDao;
 
     private final JwtUtil jwtUtil;
+
+    private final AuthRoleDao authRoleDao;
 
     private final UserRoleDao userRoleDao;
 
@@ -131,7 +134,7 @@ public class UserService implements UserDetailsService {
                         throw new ConditionException("解密失败");
                     }
                     boolean matches = new BCryptPasswordEncoder().matches(rawPassword, u.getPassword());
-                    if (matches) u.setRoles(Optional.ofNullable(userRoleDao.getUserRolesByUserId(u.getId()))
+                    if (matches) u.setRoles(Optional.ofNullable(authRoleDao.getAuthRolesByUserId(u.getId()))
                             .orElseThrow(() -> new ConditionException("登录异常请联系管理员")));
                     return matches;
                 })
