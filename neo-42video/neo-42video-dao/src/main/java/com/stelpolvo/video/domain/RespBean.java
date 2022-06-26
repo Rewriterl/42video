@@ -1,13 +1,19 @@
 package com.stelpolvo.video.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@ApiModel("响应实体")
 public class RespBean {
+    @ApiModelProperty("响应码")
     private String code;
+    @ApiModelProperty("响应消息")
     private String msg;
+    @ApiModelProperty("相应数据")
     private Object data;
 
     public static RespBean build() {

@@ -2,6 +2,9 @@
 spring:
   profiles:
     active: test
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher #springboot2.6.0之后需要手动指定路径匹配策略
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.stelpolvo.video.dao
@@ -9,3 +12,4 @@ video:
   jwt:
     access-token-expire-time: 300000
     refresh-token-expire-time: 2592090000
+

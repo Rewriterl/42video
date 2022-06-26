@@ -9,3 +9,6 @@ rocketmq:
   producer:
     moments:
       name: localhost:9876
+
+swagger:
+  enabled: true

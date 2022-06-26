@@ -1,5 +1,7 @@
 package com.stelpolvo.video.domain;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,27 +13,38 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+@ApiModel("用户实体")
 public class User implements UserDetails, Serializable {
 
+    @ApiModelProperty("用户ID")
     private Long id;
 
+    @ApiModelProperty("用户手机号")
     private String phone;
 
+    @ApiModelProperty("用户邮箱")
     private String email;
 
+    @ApiModelProperty("用户名")
     private String username;
 
     @NotNull
+    @ApiModelProperty("用户密码")
     private String password;
 
+    @ApiModelProperty("用户是否启用")
     private Boolean enabled;
 
+    @ApiModelProperty("用户创建时间")
     private Date createTime;
 
+    @ApiModelProperty("用户修改时间")
     private Date updateTime;
 
+    @ApiModelProperty("用户详细信息")
     private UserInfo userInfo;
 
+    @ApiModelProperty("用户角色")
     private List<AuthRole> roles;
 
     @Override
