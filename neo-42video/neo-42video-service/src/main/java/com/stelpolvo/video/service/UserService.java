@@ -168,8 +168,6 @@ public class UserService implements UserDetailsService {
 
     public User getUser(String header) {
         return userDao.getUserWithRolesAndInfoById(userContextHolder.getCurrentUserId());
-//        String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
-//        return redisTemplate.opsForValue().get(jwtToken);
     }
 
     public Auth refreshToken(String authorization, String refreshToken) {

@@ -4,6 +4,7 @@ import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public RespBean MyExceptionHandle(MethodArgumentNotValidException exception) {
+    public RespBean MethodArgumentExceptionHandle(MethodArgumentNotValidException exception) {
         exception.printStackTrace();
         BindingResult result = exception.getBindingResult();
         StringBuilder errorMsg = new StringBuilder();
@@ -47,5 +48,11 @@ public class GlobalExceptionHandler {
 
         exception.printStackTrace();
         return RespBean.error(errorMsg.toString());
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public RespBean AccessDeniedExceptionHandler(AccessDeniedException exception) {
+        exception.printStackTrace();
+        return RespBean.error("请提升等级后再来访问");
     }
 }

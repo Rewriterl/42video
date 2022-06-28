@@ -4,6 +4,10 @@ spring:
     username: root
     password: localdocker
     driver-class-name: com.mysql.cj.jdbc.Driver
+  http:
+    multipart:
+      max-file-size: 250Mb
+      max-request-size: 3000Mb
 
 rocketmq:
   producer:
@@ -12,3 +16,6 @@ rocketmq:
 
 swagger:
   enabled: true
+
+fdfs:
+  tracker-list: localhost:22122
