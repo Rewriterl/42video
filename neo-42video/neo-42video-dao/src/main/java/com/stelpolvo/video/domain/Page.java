@@ -26,4 +26,8 @@ public class Page<T> {
         this.page = page;
         this.pageSize = pageSize;
     }
+
+    public Integer getPage() {
+        return (page - 1) * pageSize;
+    }
 }

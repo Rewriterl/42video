@@ -1,20 +1,23 @@
 package com.stelpolvo.video.api;
 
 import com.stelpolvo.video.domain.RespBean;
+import com.stelpolvo.video.domain.Video;
+import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.service.FileService;
+import com.stelpolvo.video.service.VideoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@Api(value = "VideoApi")
+@Api(value = "视频")
 @RequiredArgsConstructor
 public class VideoApi {
 
     private final FileService fileService;
+    private final VideoService videoService;
 
     @PutMapping("/video/upload")
     @ApiOperation("支持秒传的文件分片上传")
@@ -22,4 +25,16 @@ public class VideoApi {
         return RespBean.ok(fileService.uploadFileBySlices(slice, md5, sliceNo, totalSliceNum));
     }
 
+    @PostMapping("/video")
+    public RespBean addVideo(Video video) {
+        videoService.addVideo(video);
+        return RespBean.ok();
+    }
+
+    @GetMapping("/videos")
+    public RespBean pageGetVideo(@RequestParam Integer page, @RequestParam Integer pageSize, @RequestParam String area) {
+        VideoCriteria videoCriteria = new VideoCriteria(page, pageSize, area);
+        VideoCriteria videos = videoService.pageGetVideo(videoCriteria);
+        return RespBean.ok(videos);
+    }
 }
