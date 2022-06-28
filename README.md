@@ -10,7 +10,6 @@
 | SpringCloud      |
 | SpringSecurity   |
 | Mybatis          |
-| MybatisGenerator |
 | Redis            |
 | ElasticSearch    |
 | FastDFS          |
