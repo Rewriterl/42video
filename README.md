@@ -13,4 +13,4 @@
 | MybatisGenerator |
 | Redis            |
 | ElasticSearch    |
-| MinIO            |
+| FastDFS          |
