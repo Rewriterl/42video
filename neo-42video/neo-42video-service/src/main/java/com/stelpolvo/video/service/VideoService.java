@@ -88,7 +88,11 @@ public class VideoService {
     }
 
     public VideoLikeVo getVideoLikes(Long videoId) {
-        Long userId = userContextHolder.getCurrentUserId();
+        Long userId = null;
+        try {
+            userContextHolder.getCurrentUserId();
+        } catch (Exception ignored) {
+        }
         Long likeNum = videoDao.getVideoLikes(videoId);
         VideoLike videoLike = videoDao.getVideoLikeByVideoIdAndUserId(videoId, userId);
         return new VideoLikeVo(likeNum, videoLike != null);

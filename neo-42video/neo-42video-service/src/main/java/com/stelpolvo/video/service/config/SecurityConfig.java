@@ -51,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/users", "/token", "/token/refresh").permitAll()
-                .antMatchers(HttpMethod.GET, "/verifyCode").permitAll()
+                .antMatchers(HttpMethod.GET, "/verifyCode", "/video/like").permitAll()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/*").permitAll()
