@@ -5,6 +5,7 @@ import com.stelpolvo.video.domain.*;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.domain.vo.SomeCountVo;
+import com.stelpolvo.video.domain.vo.VideoDetialsVo;
 import com.stelpolvo.video.service.utils.FastDFSUtils;
 import com.stelpolvo.video.service.utils.UserContextHolder;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import java.util.List;
 public class VideoService {
 
     private final VideoDao videoDao;
+
+    private final UserService userService;
 
     private final UserCoinService userCoinService;
 
@@ -184,5 +187,12 @@ public class VideoService {
         Long userId = userContextHolder.getCurrentUserId();
         videoDao.deleteVideoCollectionByGroupIdAndUserId(groupId, userId);
         videoDao.deleteCollectionGroup(groupId, userId);
+    }
+
+    public VideoDetialsVo getVideoDetails(Long videoId) {
+        Video video =  videoDao.getVideoDetails(videoId);
+        Long userId = video.getUserId();
+        UserInfo userInfo = userService.getUserInfoByUserId(userId);
+        return new VideoDetialsVo(video, userInfo);
     }
 }

@@ -180,4 +180,8 @@ public class UserService implements UserDetailsService {
         }
         throw new ConditionException("续期失败");
     }
+
+    public UserInfo getUserInfoByUserId(Long userId) {
+        return userDao.getUserInfoByUserId(userId);
+    }
 }

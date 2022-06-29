@@ -114,4 +114,10 @@ public class VideoApi {
     public RespBean getVideoCoins(@RequestParam Long videoId){
         return RespBean.ok(videoService.getVideoCoins(videoId));
     }
+
+    @GetMapping("/video/details")
+    @ApiOperation("查询视频详情")
+    public RespBean getVideoDetails(@RequestParam Long videoId){
+        return RespBean.ok(videoService.getVideoDetails(videoId));
+    }
 }
