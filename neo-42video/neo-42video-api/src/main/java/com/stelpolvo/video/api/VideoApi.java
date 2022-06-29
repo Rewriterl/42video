@@ -2,6 +2,7 @@ package com.stelpolvo.video.api;
 
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.Video;
+import com.stelpolvo.video.domain.VideoCoin;
 import com.stelpolvo.video.domain.VideoCollection;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.service.FileService;
@@ -71,19 +72,35 @@ public class VideoApi {
     }
 
     @PostMapping("/video/collection")
+    @ApiOperation("收藏视频")
     public RespBean addVideoCollection(@RequestBody VideoCollection videoCollection){
         videoService.addVideoCollection(videoCollection);
         return RespBean.ok();
     }
 
     @DeleteMapping("/video/collection")
+    @ApiOperation("取消收藏视频")
     public RespBean deleteVideoCollection(@RequestParam Long videoId){
         videoService.deleteVideoCollection(videoId);
         return RespBean.ok();
     }
 
     @GetMapping("/video/collection")
+    @ApiOperation("查询视频收藏信息")
     public RespBean getVideoCollections(@RequestParam Long videoId){
         return RespBean.ok(videoService.getVideoCollections(videoId));
+    }
+
+    @PostMapping("/video/coins")
+    @ApiOperation("投币")
+    public RespBean addVideoCoins(@RequestBody VideoCoin videoCoin){
+        videoService.addVideoCoins(videoCoin);
+        return RespBean.ok("投币成功");
+    }
+
+    @GetMapping("/video/coins")
+    @ApiOperation("查询视频投币数量")
+    public RespBean getVideoCoins(@RequestParam Long videoId){
+        return RespBean.ok(videoService.getVideoCoins(videoId));
     }
 }

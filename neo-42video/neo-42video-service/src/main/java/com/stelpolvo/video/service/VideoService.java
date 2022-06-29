@@ -1,10 +1,7 @@
 package com.stelpolvo.video.service;
 
 import com.stelpolvo.video.dao.VideoDao;
-import com.stelpolvo.video.domain.Video;
-import com.stelpolvo.video.domain.VideoCollection;
-import com.stelpolvo.video.domain.VideoLike;
-import com.stelpolvo.video.domain.VideoTag;
+import com.stelpolvo.video.domain.*;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.domain.vo.SomeCountVo;
@@ -24,6 +21,8 @@ import java.util.List;
 public class VideoService {
 
     private final VideoDao videoDao;
+
+    private final UserCoinService userCoinService;
 
     private final FastDFSUtils fastDFSUtils;
 
@@ -132,5 +131,42 @@ public class VideoService {
         Long count = videoDao.getVideoCollections(videoId);
         VideoCollection videoCollection = videoDao.getVideoCollectionByVideoIdAndUserId(videoId, userId);
         return new SomeCountVo(count, videoCollection != null);
+    }
+
+    @Transactional
+    public void addVideoCoins(VideoCoin videoCoin) {
+        Long userId = userContextHolder.getCurrentUserId();
+        Long videoId = videoCoin.getVideoId();
+        Integer amount = videoCoin.getAmount();
+        Video video = videoDao.getVideoById(videoId);
+        if (video == null) {
+            throw new ConditionException("非法视频！");
+        }
+        Integer userCoinsAmount = userCoinService.getUserCoinsAmount(userId);
+        userCoinsAmount = userCoinsAmount == null ? 0 : userCoinsAmount;
+        if (amount > userCoinsAmount) {
+            throw new ConditionException("硬币数量不足！");
+        }
+        VideoCoin puttedCoin = videoDao.getVideoCoinByVideoIdAndUserId(videoId, userId);
+        if (puttedCoin == null) {
+            videoCoin.setUserId(userId);
+            videoCoin.setCreateTime(new Date());
+            videoDao.addVideoCoin(videoCoin);
+        } else {
+            Integer dbAmount = puttedCoin.getAmount();
+            dbAmount += amount;
+            videoCoin.setUserId(userId);
+            videoCoin.setAmount(dbAmount);
+            videoCoin.setUpdateTime(new Date());
+            videoDao.updateVideoCoin(videoCoin);
+        }
+        userCoinService.updateUserCoinsAmount(userId, (userCoinsAmount - amount));
+    }
+
+    public SomeCountVo getVideoCoins(Long videoId) {
+        Long userId = userContextHolder.getCurrentUserId();
+        Long count = videoDao.getVideoCoinsAmount(videoId);
+        VideoCoin videoCoins = videoDao.getVideoCoinByVideoIdAndUserId(videoId, userId);
+        return new SomeCountVo(count, videoCoins != null);
     }
 }

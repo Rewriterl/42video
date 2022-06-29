@@ -13,7 +13,7 @@ public class RespBean {
     private String code;
     @ApiModelProperty("响应消息")
     private String msg;
-    @ApiModelProperty("相应数据")
+    @ApiModelProperty("响应数据")
     private Object data;
 
     public static RespBean build() {
@@ -22,6 +22,10 @@ public class RespBean {
 
     public static RespBean ok(Object data) {
         return new RespBean("200", "OK", data);
+    }
+
+    public static RespBean ok(String msg) {
+        return new RespBean("200", msg, null);
     }
 
     public static RespBean ok() {
