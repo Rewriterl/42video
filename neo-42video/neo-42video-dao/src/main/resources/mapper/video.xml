@@ -41,7 +41,8 @@
         </foreach>
     </insert>
 
-    <select id="pageCountVideos" parameterType="com.stelpolvo.video.domain.dto.VideoCriteria" resultType="java.lang.Integer">
+    <select id="pageCountVideos" parameterType="com.stelpolvo.video.domain.dto.VideoCriteria"
+            resultType="java.lang.Integer">
         select
         count(1)
         from
@@ -53,7 +54,8 @@
         </if>
     </select>
 
-    <select id="pageListVideos" parameterType="com.stelpolvo.video.domain.dto.VideoCriteria" resultType="com.stelpolvo.video.domain.Video">
+    <select id="pageListVideos" parameterType="com.stelpolvo.video.domain.dto.VideoCriteria"
+            resultType="com.stelpolvo.video.domain.Video">
         select
         *
         from
@@ -303,6 +305,16 @@
             )
         </foreach>
     </insert>
+    <insert id="addCollectionGroup">
+        insert into t_collection_group(name,
+                                       userId,
+                                       type,
+                                       createTime)
+        values (#{name},
+                #{userId},
+                #{type},
+                #{createTime})
+    </insert>
 
     <select id="getVideoBinaryImages" parameterType="java.util.Map"
             resultType="com.stelpolvo.video.domain.VideoBinaryPicture">
@@ -328,6 +340,16 @@
                  left join t_tag tt on tvt.tagId = tt.id
         where tvt.videoId = #{videoId}
     </select>
+    <select id="getCollectionGroupByName" resultType="com.stelpolvo.video.domain.CollectionGroup">
+        select *
+        from t_collection_group
+        where name = #{name}
+    </select>
+    <select id="getCollectionGroupList" resultType="com.stelpolvo.video.domain.CollectionGroup">
+        select *
+        from t_collection_group
+        where userId = #{userId}
+    </select>
 
     <delete id="deleteVideoTags">
         delete from
@@ -338,6 +360,18 @@
         <foreach collection="tagIdList" item="tagId" open="(" close=")" separator=",">
             #{tagId}
         </foreach>
+    </delete>
+    <delete id="deleteCollectionGroup">
+        delete
+        from t_collection_group
+        where id = #{id}
+          and userId = #{userId}
+    </delete>
+    <delete id="deleteVideoCollectionByGroupIdAndUserId">
+        delete
+        from t_video_collection
+        where groupId = #{groupId}
+          and userId = #{userId}
     </delete>
 
 </mapper>

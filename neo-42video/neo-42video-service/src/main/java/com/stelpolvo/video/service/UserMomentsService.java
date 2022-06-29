@@ -6,9 +6,10 @@ import com.stelpolvo.video.domain.UserMoment;
 import com.stelpolvo.video.domain.constant.MomentConstant;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.service.utils.RocketMQUtil;
+import com.stelpolvo.video.service.utils.UserContextHolder;
+import lombok.RequiredArgsConstructor;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -21,19 +22,21 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserMomentsService {
 
-    @Autowired
-    private UserMomentsDao userMomentsDao;
+    private final UserMomentsDao userMomentsDao;
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private final UserContextHolder userContextHolder;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public void addUserMoments(UserMoment userMoment) throws Exception {
+        Long userId = userContextHolder.getCurrentUserId();
+        userMoment.setUserId(userId);
         userMoment.setCreateTime(new Date());
         userMomentsDao.addUserMoments(userMoment);
         DefaultMQProducer producer = (DefaultMQProducer) applicationContext.getBean("momentsProducer");
@@ -41,7 +44,8 @@ public class UserMomentsService {
         RocketMQUtil.syncSendMsg(producer, msg);
     }
 
-    public List<UserMoment> getUserSubscribedMoments(Long userId) {
+    public List<UserMoment> getUserSubscribedMoments() {
+        Long userId = userContextHolder.getCurrentUserId();
         String key = "subscribed-" + userId;
         Long size = Optional.ofNullable(redisTemplate.opsForList().size(key)).orElseThrow(() -> new ConditionException("暂无新动态"));
         List<String> messages = redisTemplate.opsForList().leftPop(key, size);

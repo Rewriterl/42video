@@ -33,8 +33,8 @@ public class UserApi {
 
     @ApiOperation("获取当前用户信息")
     @GetMapping("/user")
-    public RespBean getUser(@RequestHeader("Authorization") String header) {
-        return RespBean.ok(userService.getUser(header));
+    public RespBean getUser() {
+        return RespBean.ok(userService.getUser());
     }
 
     @ApiOperation("注册")
@@ -80,9 +80,9 @@ public class UserApi {
 
     @ApiOperation("分页查询用户")
     @GetMapping("/users")
-    public RespBean getUsers(@RequestHeader("Authorization") String header, @RequestParam Integer page, @RequestParam Integer pageSize, String username) {
+    public RespBean getUsers(@RequestParam Integer page, @RequestParam Integer pageSize, String username) {
         UserCriteria result = userService.pageGetUserInfos(new UserCriteria(page, pageSize, username));
-        result.setList(userFollowingService.checkFollowingStatus(result.getList(), header));
+        result.setList(userFollowingService.checkFollowingStatus(result.getList()));
         return RespBean.ok(result);
     }
 }

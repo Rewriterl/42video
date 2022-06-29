@@ -29,6 +29,7 @@ public class UserFollowingService {
 
     @Transactional
     public void addUserFollowings(UserFollowing userFollowing) {
+        userFollowing.setUserId(userContextHolder.getCurrentUserId());
         Optional.ofNullable(userFollowing.getGroupId()).ifPresentOrElse((groupId) -> {
             FollowingGroup followingGroup = followingGroupService.getById(groupId);
             if (followingGroup == null) throw new ConditionException("关注分组不存在！");
@@ -48,7 +49,8 @@ public class UserFollowingService {
     /**
      * 获取用户关注的用户列表并分组
      */
-    public List<FollowingGroup> getUserFollowings(Long userId) {
+    public List<FollowingGroup> getUserFollowings() {
+        Long userId = userContextHolder.getCurrentUserId();
         List<UserFollowing> list = userFollowingDao.getUserFollowings(userId);
         Set<Long> followingIdSet = list.stream().map(UserFollowing::getFollowingId).collect(Collectors.toSet());
         List<UserInfo> userInfoList = new ArrayList<>();
@@ -109,20 +111,23 @@ public class UserFollowingService {
     }
 
     public Long addUserFollowingGroups(FollowingGroup followingGroup) {
+        Long userId = userContextHolder.getCurrentUserId();
+        followingGroup.setUserId(userId);
         followingGroup.setCreateTime(new Date());
         followingGroup.setType(UserConstant.USER_FOLLOWING_GROUP_TYPE_USER);
         followingGroupService.addFollowingGroup(followingGroup);
         return followingGroup.getId();
     }
 
-    public List<FollowingGroup> getUserFollowingGroups(Long userId) {
+    public List<FollowingGroup> getUserFollowingGroups() {
+        Long userId = userContextHolder.getCurrentUserId();
         return followingGroupService.getUserFollowingGroups(userId);
     }
 
     // 有的时候需要查看是否已关注，有的时候不需要。这里先留着。
-    public List<UserInfo> checkFollowingStatus(List<UserInfo> userInfoList, String header) {
-        Long id = userContextHolder.getCurrentUser(header).getId();
-        List<UserFollowing> userFollowingList = userFollowingDao.getUserFollowings(id);
+    public List<UserInfo> checkFollowingStatus(List<UserInfo> userInfoList) {
+        Long userId = userContextHolder.getCurrentUserId();
+        List<UserFollowing> userFollowingList = userFollowingDao.getUserFollowings(userId);
         for (UserInfo userInfo : userInfoList) {
             userInfo.setFollowed(false);
             for (UserFollowing userFollowing : userFollowingList) {

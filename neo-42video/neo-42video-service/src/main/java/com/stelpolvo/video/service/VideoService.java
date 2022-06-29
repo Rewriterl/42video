@@ -98,6 +98,7 @@ public class VideoService {
         return new SomeCountVo(likeNum, videoLike != null);
     }
 
+
     @Transactional
     public void addVideoCollection(VideoCollection videoCollection) {
         Long userId = userContextHolder.getCurrentUserId();
@@ -168,5 +169,20 @@ public class VideoService {
         Long count = videoDao.getVideoCoinsAmount(videoId);
         VideoCoin videoCoins = videoDao.getVideoCoinByVideoIdAndUserId(videoId, userId);
         return new SomeCountVo(count, videoCoins != null);
+    }
+
+    public Long addCollectionGroups(CollectionGroup collectionGroup) {
+        Long userId = userContextHolder.getCurrentUserId();
+        collectionGroup.setUserId(userId);
+        collectionGroup.setCreateTime(new Date());
+        videoDao.addCollectionGroup(collectionGroup);
+        return collectionGroup.getId();
+    }
+
+    @Transactional
+    public void deleteCollectionGroup(Long groupId) {
+        Long userId = userContextHolder.getCurrentUserId();
+        videoDao.deleteVideoCollectionByGroupIdAndUserId(groupId, userId);
+        videoDao.deleteCollectionGroup(groupId, userId);
     }
 }

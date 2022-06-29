@@ -4,6 +4,7 @@ import com.stelpolvo.video.domain.AuthRoleElementOperation;
 import com.stelpolvo.video.domain.AuthRoleMenu;
 import com.stelpolvo.video.domain.UserAuthorities;
 import com.stelpolvo.video.domain.UserRole;
+import com.stelpolvo.video.service.utils.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,10 @@ public class UserAuthService {
 
     private final AuthRoleService authRoleService;
 
-    public UserAuthorities getUserAuthorities(Long userId) {
+    private final UserContextHolder userContextHolder;
+
+    public UserAuthorities getUserAuthorities() {
+        Long userId = userContextHolder.getCurrentUserId();
         List<UserRole> userRoleList = userRoleService.getUserRolesByUserId(userId);
         Set<Long> roleIds = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
         List<AuthRoleElementOperation> roleElementOperations = authRoleService.getRoleElementOperations(roleIds);

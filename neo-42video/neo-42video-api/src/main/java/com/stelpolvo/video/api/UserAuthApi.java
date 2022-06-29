@@ -2,7 +2,6 @@ package com.stelpolvo.video.api;
 
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.service.UserAuthService;
-import com.stelpolvo.video.service.utils.UserContextHolder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +15,9 @@ public class UserAuthApi {
 
     private final UserAuthService userAuthService;
 
-    private final UserContextHolder userContextHolder;
-
     @ApiOperation("获取用户权限")
     @GetMapping("/user/auths")
     public RespBean getUserAuthorities() {
-        return RespBean.ok(userAuthService.getUserAuthorities(userContextHolder.getCurrentUserId()));
+        return RespBean.ok(userAuthService.getUserAuthorities());
     }
 }

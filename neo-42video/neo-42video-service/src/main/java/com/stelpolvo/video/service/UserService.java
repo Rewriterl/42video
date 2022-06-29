@@ -166,7 +166,7 @@ public class UserService implements UserDetailsService {
         return userCriteria;
     }
 
-    public User getUser(String header) {
+    public User getUser() {
         return userDao.getUserWithRolesAndInfoById(userContextHolder.getCurrentUserId());
     }
 

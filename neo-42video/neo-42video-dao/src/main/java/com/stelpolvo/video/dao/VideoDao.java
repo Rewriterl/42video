@@ -76,4 +76,14 @@ public interface VideoDao {
                             @Param("videoId") Long videoId);
 
     List<VideoBinaryPicture> getVideoBinaryImages(Map<String, Object> params);
+
+    Long addCollectionGroup(CollectionGroup collectionGroup);
+
+    CollectionGroup getCollectionGroupByName(String name);
+
+    List<CollectionGroup> getCollectionGroupList();
+
+    Integer deleteCollectionGroup(Long id, Long userId);
+
+    Integer deleteVideoCollectionByGroupIdAndUserId(Long groupId, Long userId);
 }
