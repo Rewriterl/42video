@@ -29,12 +29,14 @@ public class VideoApi {
     }
 
     @PostMapping("/video")
+    @ApiOperation("添加视频")
     public RespBean addVideo(Video video) {
         videoService.addVideo(video);
         return RespBean.ok();
     }
 
     @GetMapping("/videos")
+    @ApiOperation("分页查询视频列表")
     public RespBean pageGetVideo(@RequestParam Integer page, @RequestParam Integer pageSize, @RequestParam String area) {
         VideoCriteria videoCriteria = new VideoCriteria(page, pageSize, area);
         VideoCriteria videos = videoService.pageGetVideo(videoCriteria);
@@ -42,7 +44,28 @@ public class VideoApi {
     }
 
     @GetMapping("/video")
+    @ApiOperation("根据id分片播放视频")
     public void getVideoBySlices(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
         videoService.getVideoBySlices(request, response, url);
+    }
+
+    @PostMapping("/video/like")
+    @ApiOperation("点赞视频")
+    public RespBean addVideoLike(@RequestParam Long videoId) {
+        videoService.addVideoLike(videoId);
+        return RespBean.ok();
+    }
+
+    @DeleteMapping("/video/like")
+    @ApiOperation("取消点赞视频")
+    public RespBean deleteVideoLike(@RequestParam Long videoId) {
+        videoService.deleteVideoLike(videoId);
+        return RespBean.ok();
+    }
+
+    @GetMapping("/video/like")
+    @ApiOperation("查询视频点赞信息")
+    public RespBean getVideoLikes(@RequestParam Long videoId) {
+        return RespBean.ok(videoService.getVideoLikes(videoId));
     }
 }

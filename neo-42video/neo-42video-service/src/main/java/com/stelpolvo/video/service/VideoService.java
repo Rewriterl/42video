@@ -2,10 +2,13 @@ package com.stelpolvo.video.service;
 
 import com.stelpolvo.video.dao.VideoDao;
 import com.stelpolvo.video.domain.Video;
+import com.stelpolvo.video.domain.VideoLike;
 import com.stelpolvo.video.domain.VideoTag;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
+import com.stelpolvo.video.domain.vo.VideoLikeVo;
 import com.stelpolvo.video.service.utils.FastDFSUtils;
+import com.stelpolvo.video.service.utils.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +26,10 @@ public class VideoService {
 
     private final FastDFSUtils fastDFSUtils;
 
+    private final UserContextHolder userContextHolder;
+
     @Transactional
-    public void addVideo(Video video){
+    public void addVideo(Video video) {
         Date createTime = new Date();
         video.setCreateTime(createTime);
         videoDao.addVideos(video);
@@ -48,7 +53,44 @@ public class VideoService {
         return videoCriteria;
     }
 
-    public void getVideoBySlices(HttpServletRequest request, HttpServletResponse response,String url) throws Exception {
+    public void getVideoBySlices(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
         fastDFSUtils.getVideoBySlices(request, response, url);
+    }
+
+    public void addVideoLike(Long videoId) {
+        Long userId = userContextHolder.getCurrentUserId();
+        Video video = videoDao.getVideoById(videoId);
+        if (video == null) {
+            throw new ConditionException("非法视频");
+        }
+        VideoLike videoLike = videoDao.getVideoLikeByVideoIdAndUserId(videoId, userId);
+        if (videoLike != null) {
+            throw new ConditionException("已点赞");
+        }
+        videoLike = new VideoLike();
+        videoLike.setVideoId(videoId);
+        videoLike.setUserId(userId);
+        videoLike.setCreateTime(new Date());
+        videoDao.addVideoLike(videoLike);
+    }
+
+    public void deleteVideoLike(Long videoId) {
+        Long userId = userContextHolder.getCurrentUserId();
+        Video video = videoDao.getVideoById(videoId);
+        if (video == null) {
+            throw new ConditionException("非法视频");
+        }
+        VideoLike videoLike = videoDao.getVideoLikeByVideoIdAndUserId(videoId, userId);
+        if (videoLike == null) {
+            throw new ConditionException("尚未点赞");
+        }
+        videoDao.deleteVideoLike(videoId, userId);
+    }
+
+    public VideoLikeVo getVideoLikes(Long videoId) {
+        Long userId = userContextHolder.getCurrentUserId();
+        Long likeNum = videoDao.getVideoLikes(videoId);
+        VideoLike videoLike = videoDao.getVideoLikeByVideoIdAndUserId(videoId, userId);
+        return new VideoLikeVo(likeNum, videoLike != null);
     }
 }
