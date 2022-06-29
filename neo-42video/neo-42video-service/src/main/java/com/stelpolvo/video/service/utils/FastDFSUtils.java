@@ -1,5 +1,6 @@
 package com.stelpolvo.video.service.utils;
 
+import com.github.tobato.fastdfs.domain.fdfs.FileInfo;
 import com.github.tobato.fastdfs.domain.fdfs.MetaData;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
@@ -7,15 +8,16 @@ import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.stelpolvo.video.domain.exception.ConditionException;
 import io.netty.util.internal.StringUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +27,8 @@ public class FastDFSUtils {
 
     private final AppendFileStorageClient appendFileStorageClient;
 
-    private final RedisTemplate<String, String> redisTemplate;
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
     private static final String DEFAULT_GROUP = "group1";
 
     private static final String PATH_KEY = "path-key:";
@@ -35,6 +38,9 @@ public class FastDFSUtils {
     private static final String UPLOADED_NO_KEY = "uploaded-no-key:";
 
     private static final int SLICE_SIZE = 1024 * 1024 * 2;
+
+    @Value("${fdfs.http.storage-address}")
+    private String HTTP_FASTDFS_SERVER;
 
 
     public String getFileType(MultipartFile file) {
@@ -105,5 +111,42 @@ public class FastDFSUtils {
             redisTemplate.delete(keyList);
         }
         return resultPath;
+    }
+
+    public void getVideoBySlices(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
+        FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, url);
+        if (fileInfo == null) {
+            throw new ConditionException("文件不存在！");
+        }
+        long fileSize = fileInfo.getFileSize();
+        String fullUrl = HTTP_FASTDFS_SERVER + url;
+        HashMap<String, Object> headers = new HashMap<>();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            headers.put(headerName, request.getHeader(headerName));
+        }
+        String[] range;
+        String rangeStr = request.getHeader("Range");
+        if (StringUtil.isNullOrEmpty(rangeStr)) {
+            rangeStr = "bytes=0-" + (fileSize - 1);
+        }
+        range = rangeStr.split("bytes=|-");
+        long begin = 0;
+        if (range.length >= 2) {
+            begin = Long.parseLong(range[1]);
+        }
+        long end = fileSize - 1;
+        if (range.length >= 3) {
+            end = Long.parseLong(range[2]);
+        }
+        long length = end - begin + 1;
+        String contentRange = "bytes " + begin + "-" + end + "/" + fileSize;
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        response.setContentType("video/mp4");
+        response.setHeader("Content-Range", contentRange);
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setContentLength((int) length);
+        HttpUtil.get(fullUrl, headers, response);
     }
 }

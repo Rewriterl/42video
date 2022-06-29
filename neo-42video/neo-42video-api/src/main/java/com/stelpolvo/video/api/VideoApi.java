@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @Api(value = "视频")
 @RequiredArgsConstructor
@@ -36,5 +39,10 @@ public class VideoApi {
         VideoCriteria videoCriteria = new VideoCriteria(page, pageSize, area);
         VideoCriteria videos = videoService.pageGetVideo(videoCriteria);
         return RespBean.ok(videos);
+    }
+
+    @GetMapping("/video")
+    public void getVideoBySlices(HttpServletRequest request, HttpServletResponse response, String url) throws Exception {
+        videoService.getVideoBySlices(request, response, url);
     }
 }

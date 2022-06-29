@@ -5,10 +5,13 @@ import com.stelpolvo.video.domain.Video;
 import com.stelpolvo.video.domain.VideoTag;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
+import com.stelpolvo.video.service.utils.FastDFSUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +20,8 @@ import java.util.List;
 public class VideoService {
 
     private final VideoDao videoDao;
+
+    private final FastDFSUtils fastDFSUtils;
 
     @Transactional
     public void addVideo(Video video){
@@ -41,5 +46,9 @@ public class VideoService {
             videoCriteria.setList(videoDao.pageListVideos(videoCriteria));
         }
         return videoCriteria;
+    }
+
+    public void getVideoBySlices(HttpServletRequest request, HttpServletResponse response,String url) throws Exception {
+        fastDFSUtils.getVideoBySlices(request, response, url);
     }
 }
