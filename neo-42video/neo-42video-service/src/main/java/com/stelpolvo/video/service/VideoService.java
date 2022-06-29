@@ -2,11 +2,12 @@ package com.stelpolvo.video.service;
 
 import com.stelpolvo.video.dao.VideoDao;
 import com.stelpolvo.video.domain.Video;
+import com.stelpolvo.video.domain.VideoCollection;
 import com.stelpolvo.video.domain.VideoLike;
 import com.stelpolvo.video.domain.VideoTag;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.domain.exception.ConditionException;
-import com.stelpolvo.video.domain.vo.VideoLikeVo;
+import com.stelpolvo.video.domain.vo.SomeCountVo;
 import com.stelpolvo.video.service.utils.FastDFSUtils;
 import com.stelpolvo.video.service.utils.UserContextHolder;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +88,7 @@ public class VideoService {
         videoDao.deleteVideoLike(videoId, userId);
     }
 
-    public VideoLikeVo getVideoLikes(Long videoId) {
+    public SomeCountVo getVideoLikes(Long videoId) {
         Long userId = null;
         try {
             userContextHolder.getCurrentUserId();
@@ -95,6 +96,41 @@ public class VideoService {
         }
         Long likeNum = videoDao.getVideoLikes(videoId);
         VideoLike videoLike = videoDao.getVideoLikeByVideoIdAndUserId(videoId, userId);
-        return new VideoLikeVo(likeNum, videoLike != null);
+        return new SomeCountVo(likeNum, videoLike != null);
+    }
+
+    @Transactional
+    public void addVideoCollection(VideoCollection videoCollection) {
+        Long userId = userContextHolder.getCurrentUserId();
+        Long videoId = videoCollection.getVideoId();
+        Long groupId = videoCollection.getGroupId();
+        if (videoId == null || groupId == null) {
+            throw new ConditionException("参数异常！");
+        }
+        Video video = videoDao.getVideoById(videoId);
+        if (video == null) {
+            throw new ConditionException("非法视频！");
+        }
+        // 有可能是换组操作，如果原来有分组的话这里删除原来的分组再重新添加
+        videoDao.deleteVideoCollection(videoId, userId);
+        videoCollection.setUserId(userId);
+        videoCollection.setCreateTime(new Date());
+        videoDao.addVideoCollection(videoCollection);
+    }
+
+    public void deleteVideoCollection(Long videoId) {
+        Long userId = userContextHolder.getCurrentUserId();
+        videoDao.deleteVideoCollection(videoId, userId);
+    }
+
+    public SomeCountVo getVideoCollections(Long videoId) {
+        Long userId = null;
+        try {
+            userId = userContextHolder.getCurrentUserId();
+        } catch (Exception ignored) {
+        }
+        Long count = videoDao.getVideoCollections(videoId);
+        VideoCollection videoCollection = videoDao.getVideoCollectionByVideoIdAndUserId(videoId, userId);
+        return new SomeCountVo(count, videoCollection != null);
     }
 }

@@ -2,6 +2,7 @@ package com.stelpolvo.video.api;
 
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.Video;
+import com.stelpolvo.video.domain.VideoCollection;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.service.FileService;
 import com.stelpolvo.video.service.VideoService;
@@ -67,5 +68,22 @@ public class VideoApi {
     @ApiOperation("查询视频点赞信息")
     public RespBean getVideoLikes(@RequestParam Long videoId) {
         return RespBean.ok(videoService.getVideoLikes(videoId));
+    }
+
+    @PostMapping("/video/collection")
+    public RespBean addVideoCollection(@RequestBody VideoCollection videoCollection){
+        videoService.addVideoCollection(videoCollection);
+        return RespBean.ok();
+    }
+
+    @DeleteMapping("/video/collection")
+    public RespBean deleteVideoCollection(@RequestParam Long videoId){
+        videoService.deleteVideoCollection(videoId);
+        return RespBean.ok();
+    }
+
+    @GetMapping("/video/collection")
+    public RespBean getVideoCollections(@RequestParam Long videoId){
+        return RespBean.ok(videoService.getVideoCollections(videoId));
     }
 }
