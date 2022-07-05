@@ -28,7 +28,7 @@ public class UserApi {
     @ApiOperation("获取公钥")
     @GetMapping("/rsa-pub")
     public RespBean getRsaPub() {
-        return RespBean.ok(RSAUtil.getPublicKeyStr());
+        return RespBean.ok("获取成功",RSAUtil.getPublicKeyStr());
     }
 
     @ApiOperation("获取当前用户信息")

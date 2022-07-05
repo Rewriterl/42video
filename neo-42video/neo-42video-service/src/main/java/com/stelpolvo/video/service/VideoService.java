@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,14 +36,16 @@ public class VideoService {
     public void addVideo(Video video) {
         Date createTime = new Date();
         video.setCreateTime(createTime);
+        video.setUserId(userContextHolder.getCurrentUserId());
         videoDao.addVideos(video);
         List<VideoTag> videoTagList = video.getVideoTagList();
         Long videoId = video.getId();
-        videoTagList.forEach(videoTag -> {
-            videoTag.setVideoId(videoId);
-            videoTag.setCreateTime(createTime);
-        });
-        videoDao.batchAddVideoTags(videoTagList);
+        Optional.ofNullable(videoTagList).ifPresent(tags -> tags.forEach(tag -> {
+            tag.setVideoId(videoId);
+            tag.setCreateTime(createTime);
+        }));
+        Optional.ofNullable(videoTagList).ifPresent(videoDao::batchAddVideoTags);
+//        videoDao.batchAddVideoTags(videoTagList);
     }
 
     public VideoCriteria pageGetVideo(VideoCriteria videoCriteria) {

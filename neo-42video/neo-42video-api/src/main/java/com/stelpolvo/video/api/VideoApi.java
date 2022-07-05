@@ -2,6 +2,7 @@ package com.stelpolvo.video.api;
 
 import com.stelpolvo.video.domain.*;
 import com.stelpolvo.video.domain.dto.VideoCriteria;
+import com.stelpolvo.video.service.ElasticSearchService;
 import com.stelpolvo.video.service.FileService;
 import com.stelpolvo.video.service.VideoService;
 import io.swagger.annotations.Api;
@@ -21,6 +22,8 @@ public class VideoApi {
     private final FileService fileService;
     private final VideoService videoService;
 
+    private final ElasticSearchService elasticSearchService;
+
     @PutMapping("/video/upload")
     @ApiOperation("支持秒传的文件分片上传")
     public RespBean uploadOther(String md5, Integer sliceNo, Integer totalSliceNum, MultipartFile slice) throws Exception {
@@ -29,8 +32,9 @@ public class VideoApi {
 
     @PostMapping("/video")
     @ApiOperation("添加视频")
-    public RespBean addVideo(Video video) {
+    public RespBean addVideo(@RequestBody Video video) {
         videoService.addVideo(video);
+        elasticSearchService.addVideo(video);
         return RespBean.ok();
     }
 
