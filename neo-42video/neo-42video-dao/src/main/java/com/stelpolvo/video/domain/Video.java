@@ -31,7 +31,6 @@ public class Video {
     @ApiModelProperty(value = "视频链接")
     private String url;
 
-
     @ApiModelProperty(value = "视频封面")
     private String thumbnail;
 

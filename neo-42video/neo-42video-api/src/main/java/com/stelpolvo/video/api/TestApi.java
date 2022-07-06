@@ -9,6 +9,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @Api(tags = "测试")
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class TestApi {
     }
 
     @GetMapping("/test2")
-    public RespBean test2() {
-        return RespBean.ok(elasticSearchService.getVideo("测"));
+    public RespBean test2() throws IOException {
+        return RespBean.ok(elasticSearchService.getContents("测",1,10));
     }
 }

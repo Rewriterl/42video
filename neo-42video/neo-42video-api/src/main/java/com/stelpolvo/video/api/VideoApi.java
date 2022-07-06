@@ -5,9 +5,11 @@ import com.stelpolvo.video.domain.dto.VideoCriteria;
 import com.stelpolvo.video.service.ElasticSearchService;
 import com.stelpolvo.video.service.FileService;
 import com.stelpolvo.video.service.VideoService;
+import com.stelpolvo.video.service.utils.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 @Api(value = "视频")
 @RequiredArgsConstructor
 public class VideoApi {
+
+    private final JwtUtil jwtUtil;
 
     private final FileService fileService;
     private final VideoService videoService;
@@ -88,40 +92,56 @@ public class VideoApi {
 
     @PostMapping("/video/collection")
     @ApiOperation("收藏视频")
-    public RespBean addVideoCollection(@RequestBody VideoCollection videoCollection){
+    public RespBean addVideoCollection(@RequestBody VideoCollection videoCollection) {
         videoService.addVideoCollection(videoCollection);
         return RespBean.ok();
     }
 
     @DeleteMapping("/video/collection")
     @ApiOperation("取消收藏视频")
-    public RespBean deleteVideoCollection(@RequestParam Long videoId){
+    public RespBean deleteVideoCollection(@RequestParam Long videoId) {
         videoService.deleteVideoCollection(videoId);
         return RespBean.ok();
     }
 
     @GetMapping("/video/collection")
     @ApiOperation("查询视频收藏信息")
-    public RespBean getVideoCollections(@RequestParam Long videoId){
+    public RespBean getVideoCollections(@RequestParam Long videoId) {
         return RespBean.ok(videoService.getVideoCollections(videoId));
     }
 
     @PostMapping("/video/coins")
     @ApiOperation("投币")
-    public RespBean addVideoCoins(@RequestBody VideoCoin videoCoin){
+    public RespBean addVideoCoins(@RequestBody VideoCoin videoCoin) {
         videoService.addVideoCoins(videoCoin);
         return RespBean.ok("投币成功");
     }
 
     @GetMapping("/video/coins")
     @ApiOperation("查询视频投币数量")
-    public RespBean getVideoCoins(@RequestParam Long videoId){
+    public RespBean getVideoCoins(@RequestParam Long videoId) {
         return RespBean.ok(videoService.getVideoCoins(videoId));
     }
 
     @GetMapping("/video/details")
     @ApiOperation("查询视频详情")
-    public RespBean getVideoDetails(@RequestParam Long videoId){
+    public RespBean getVideoDetails(@RequestParam Long videoId) {
         return RespBean.ok(videoService.getVideoDetails(videoId));
+    }
+
+    @PostMapping("/video/view")
+    @ApiOperation("播放历史")
+    public RespBean addVideoView(@RequestBody VideoView videoView,
+                                 HttpServletRequest request) {
+        if (!jwtUtil.checkTokenAndSetAuth(request)) SecurityContextHolder.clearContext();
+        videoService.addVideoViewHistory(videoView, request);
+        return RespBean.ok();
+    }
+
+    @GetMapping("/video/view")
+    @ApiOperation("查询视频播放量")
+    public RespBean getVideoViewCounts(@RequestParam Long videoId) {
+        Integer count = videoService.getVideoViewCounts(videoId);
+        return RespBean.ok(count);
     }
 }

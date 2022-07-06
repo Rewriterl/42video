@@ -7,16 +7,17 @@ import com.stelpolvo.video.domain.exception.ConditionException;
 import com.stelpolvo.video.domain.vo.SomeCountVo;
 import com.stelpolvo.video.domain.vo.VideoDetialsVo;
 import com.stelpolvo.video.service.utils.FastDFSUtils;
+import com.stelpolvo.video.service.utils.IpUtil;
 import com.stelpolvo.video.service.utils.UserContextHolder;
+import eu.bitwalker.useragentutils.UserAgent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -193,9 +194,44 @@ public class VideoService {
     }
 
     public VideoDetialsVo getVideoDetails(Long videoId) {
-        Video video =  videoDao.getVideoDetails(videoId);
+        Video video = videoDao.getVideoDetails(videoId);
         Long userId = video.getUserId();
         UserInfo userInfo = userService.getUserInfoByUserId(userId);
         return new VideoDetialsVo(video, userInfo);
+    }
+
+    public void addVideoViewHistory(VideoView videoView, HttpServletRequest request) {
+        try {
+            Optional.ofNullable(userContextHolder.getCurrentUserId()).ifPresent(videoView::setUserId);
+        } catch (Exception ignored) {
+        }
+        Long userId = videoView.getUserId();
+        Long videoId = videoView.getVideoId();
+        String agent = request.getHeader("User-Agent");
+        UserAgent userAgent = UserAgent.parseUserAgentString(agent);
+        String clientId = String.valueOf(userAgent.getId());
+        String ip = IpUtil.getIP(request);
+        Map<String, Object> params = new HashMap<>();
+        if (userId != null) {
+            params.put("userId", userId);
+        } else {
+            params.put("ip", ip);
+            params.put("clientId", clientId);
+        }
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        params.put("today", sdf.format(now));
+        params.put("videoId", videoId);
+        VideoView dbVideoView = videoDao.getVideoView(params);
+        if (dbVideoView == null) {
+            videoView.setIp(ip);
+            videoView.setClientId(clientId);
+            videoView.setCreateTime(new Date());
+            videoDao.addVideoView(videoView);
+        }
+    }
+
+    public Integer getVideoViewCounts(Long videoId) {
+        return videoDao.getVideoViewCounts(videoId);
     }
 }

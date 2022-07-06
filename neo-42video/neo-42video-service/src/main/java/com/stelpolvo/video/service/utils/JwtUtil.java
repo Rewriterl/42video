@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Date;
@@ -132,5 +133,18 @@ public class JwtUtil {
             }
         }
         return false;
+    }
+
+    public boolean checkTokenAndSetAuth(HttpServletRequest request) {
+        boolean result;
+        String header = request.getHeader(appProperties.getJwt().getHeader());
+        if (header == null) return false;
+        String jwtToken = header.replace(appProperties.getJwt().getPrefix(), "");
+        result = header.startsWith(appProperties.getJwt().getPrefix())
+                && validateAccessToken(jwtToken);
+        if (result) {
+            setAuthentication(jwtToken);
+        }
+        return result;
     }
 }

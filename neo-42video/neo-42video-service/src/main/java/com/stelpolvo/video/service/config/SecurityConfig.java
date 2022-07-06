@@ -50,8 +50,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/users", "/token", "/token/refresh").permitAll()
-                .antMatchers(HttpMethod.GET, "/verifyCode", "/video/like", "/video/collection","/rsa-pub").permitAll()
+                .antMatchers(HttpMethod.POST,
+                        "/users",
+                        "/token",
+                        "/token/refresh",
+                        "/video/view"
+                ).permitAll()
+                .antMatchers(HttpMethod.GET,
+                        "/verifyCode",
+                        "/video/like",
+                        "/video/collection",
+                        "/rsa-pub",
+                        "/video/view"
+                ).permitAll()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/swagger-ui/*").permitAll()

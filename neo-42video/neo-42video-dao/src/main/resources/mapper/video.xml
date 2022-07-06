@@ -197,7 +197,7 @@
         where videoId = #{videoId}
           and rootId is null
         order by id desc
-        limit #{start}, #{limit}
+            limit #{start}, #{limit}
     </select>
 
     <select id="batchGetVideoCommentsByRootIds" parameterType="java.util.List"
