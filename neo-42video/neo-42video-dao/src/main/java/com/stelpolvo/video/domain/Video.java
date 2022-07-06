@@ -14,10 +14,10 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Document(indexName = "videos")
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(value = "视频")
+@Document(indexName = "videos")
 public class Video {
 
     @Id
