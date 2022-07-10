@@ -1,5 +1,6 @@
 package com.stelpolvo.video.api;
 
+import com.stelpolvo.video.annotation.Log;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.service.ElasticSearchService;
 import io.swagger.annotations.Api;
@@ -18,6 +19,7 @@ public class TestApi {
 
     private final ElasticSearchService elasticSearchService;
     @ApiOperation("测试返回")
+    @Log("测试返回")
     @GetMapping("/test")
     @PreAuthorize("@el.check('lv2')")
     public String test() {
@@ -25,6 +27,7 @@ public class TestApi {
     }
 
     @GetMapping("/test2")
+    @Log("测试返回")
     public RespBean test2() throws IOException {
         return RespBean.ok(elasticSearchService.getContents("测",1,10));
     }

@@ -1,5 +1,6 @@
 package com.stelpolvo.video.api;
 
+import com.stelpolvo.video.annotation.Log;
 import com.stelpolvo.video.domain.FollowingGroup;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.UserFollowing;
@@ -24,6 +25,7 @@ public class UserFollowingApi {
     private final UserContextHolder userContextHolder;
 
     @ApiOperation("新增关注")
+    @Log("新增关注")
     @PostMapping("/following")
     public RespBean addUserFollowing(@RequestBody UserFollowing userFollowing) {
         userFollowingService.addUserFollowings(userFollowing);
@@ -31,6 +33,7 @@ public class UserFollowingApi {
     }
 
     @ApiOperation("查询全部关注我的人")
+    @Log("查询全部关注我的人")
     @GetMapping("/fans")
     public RespBean getUserFans() {
         List<UserFollowing> userFans = userFollowingService.getUserFans(userContextHolder.getCurrentUserId());
@@ -38,6 +41,7 @@ public class UserFollowingApi {
     }
 
     @ApiOperation("查询全部我关注的人")
+    @Log("查询全部我关注的人")
     @GetMapping("/followings")
     public RespBean getUserFollowings() {
         List<FollowingGroup> userFollowings = userFollowingService.getUserFollowings();
@@ -45,6 +49,7 @@ public class UserFollowingApi {
     }
 
     @ApiOperation("新增分组")
+    @Log("新增分组")
     @PostMapping("/groups")
     public RespBean addUserFollowingsGroup(@RequestBody FollowingGroup followingGroup) {
         Long groupIds = userFollowingService.addUserFollowingGroups(followingGroup);
@@ -52,6 +57,7 @@ public class UserFollowingApi {
     }
 
     @ApiOperation("查询全部分组")
+    @Log("查询全部分组")
     @GetMapping("/groups")
     public RespBean getUserFollowingGroups() {
         List<FollowingGroup> userFollowingGroups = userFollowingService.getUserFollowingGroups();

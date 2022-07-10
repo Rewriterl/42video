@@ -1,5 +1,6 @@
 package com.stelpolvo.video.api;
 
+import com.stelpolvo.video.annotation.Log;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.service.UserAuthService;
 import io.swagger.annotations.Api;
@@ -16,6 +17,7 @@ public class UserAuthApi {
     private final UserAuthService userAuthService;
 
     @ApiOperation("获取用户权限")
+    @Log("获取用户权限")
     @GetMapping("/user/auths")
     public RespBean getUserAuthorities() {
         return RespBean.ok(userAuthService.getUserAuthorities());

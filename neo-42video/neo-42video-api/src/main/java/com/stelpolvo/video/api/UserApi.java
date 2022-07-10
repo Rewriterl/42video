@@ -1,5 +1,6 @@
 package com.stelpolvo.video.api;
 
+import com.stelpolvo.video.annotation.Log;
 import com.stelpolvo.video.domain.Auth;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.User;
@@ -26,18 +27,21 @@ public class UserApi {
     private final UserFollowingService userFollowingService;
 
     @ApiOperation("获取公钥")
+    @Log("获取公钥")
     @GetMapping("/rsa-pub")
     public RespBean getRsaPub() {
         return RespBean.ok("获取成功",RSAUtil.getPublicKeyStr());
     }
 
     @ApiOperation("获取当前用户信息")
+    @Log("获取当前用户信息")
     @GetMapping("/user")
     public RespBean getUser() {
         return RespBean.ok(userService.getUser());
     }
 
     @ApiOperation("注册")
+    @Log("注册")
     @PostMapping("/user")
     public RespBean addUser(@RequestBody User user) {
         userService.addUser(user);
@@ -49,6 +53,7 @@ public class UserApi {
      * SpringSecurity提供的登录接口有些重
      */
     @ApiOperation("登录")
+    @Log("用户登录")
     @PostMapping("/token")
     public RespBean login(@Valid @RequestBody LoginDto loginDto) {
         return RespBean.ok("登录成功", userService.login(loginDto));
@@ -58,6 +63,7 @@ public class UserApi {
      * TODO: 使用RequestBody无法完整获取到参数。暂未找到原因，这里采用formData的形式获取参数
      */
     @ApiOperation("token续期")
+    @Log("token续期")
     @PostMapping("/token/refresh")
     public RespBean refreshToken(@RequestHeader String authorization, @RequestParam String refreshToken) {
         Auth auth = userService.refreshToken(authorization, refreshToken);
@@ -65,6 +71,7 @@ public class UserApi {
     }
 
     @ApiOperation("更新用户基础信息")
+    @Log("更新用户基础信息")
     @PutMapping("/user")
     public RespBean updateUser(@RequestBody UserBasicInfoDto user) {
         userService.updateUser(user);
@@ -72,6 +79,7 @@ public class UserApi {
     }
 
     @ApiOperation("更新用户详细信息")
+    @Log("更新用户详细信息")
     @PutMapping("/info")
     public RespBean updateUserInfo(@RequestBody UserInfo userInfo) {
         userService.updateUserInfo(userInfo);
@@ -79,6 +87,7 @@ public class UserApi {
     }
 
     @ApiOperation("分页查询用户")
+    @Log("分页查询用户")
     @GetMapping("/users")
     public RespBean getUsers(@RequestParam Integer page, @RequestParam Integer pageSize, String username) {
         UserCriteria result = userService.pageGetUserInfos(new UserCriteria(page, pageSize, username));

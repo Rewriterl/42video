@@ -1,5 +1,6 @@
 package com.stelpolvo.video.api;
 
+import com.stelpolvo.video.annotation.Log;
 import com.stelpolvo.video.domain.RespBean;
 import com.stelpolvo.video.domain.UserMoment;
 import com.stelpolvo.video.service.UserMomentsService;
@@ -15,6 +16,7 @@ public class UserMomentsApi {
     private final UserMomentsService userMomentsService;
 
     @ApiOperation("发布动态")
+    @Log("发布动态")
     @PostMapping("/moment")
     public RespBean addUserMoments(@RequestBody UserMoment userMoment) throws Exception {
         userMomentsService.addUserMoments(userMoment);
@@ -22,6 +24,7 @@ public class UserMomentsApi {
     }
 
     @ApiOperation("查询动态")
+    @Log("查询动态")
     @GetMapping("/moment")
     public RespBean getUserSubscribedMoments() {
         return RespBean.ok(userMomentsService.getUserSubscribedMoments());
